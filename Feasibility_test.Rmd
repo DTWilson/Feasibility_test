@@ -214,13 +214,21 @@ plot(opt$value)
 get_oc_pc <- function(phi, cs, n, xi, tI, s, f, a, n_e, n_t)
 {
   p_r <- phi[1]; p_a <- phi[2]; sd <- 1
+  if(any(c(p_r,p_a) < 0) | any(c(p_r,p_a) > 1) ){return(1000)}
   exp_n <- get_exp_N(n_e, n_t, p_r)
   p_f <- (2*sd^2 + mu^2 *p_a*(1-p_a))*xi^2/((p_a*mu)^2*exp_n)
-  if(p_f <= 1){
-    (tI*-1 + !tI*1)*pnbinom(s, 2*n, p_r)*(1- pbinom(f, 2*n, p_f))*(1 - pbinom(a, n, p_a)) 
+  if(any(c(p_r,p_a,p_f) < 0) | any(c(p_r,p_a,p_f) > 1) ){
+    1000
   } else {
-    1 + 1000*(p_f-1)^2
+    (tI*-1 + !tI*1)*pnbinom(s, 2*n, p_r)*(1- pbinom(f, 2*n, p_f))*(1 - pbinom(a, n, p_a)) 
   }
+  
+  #if(p_f <= 1){
+  #  (tI*-1 + !tI*1)*pnbinom(s, 2*n, p_r)*(1- pbinom(f, 2*n, p_f))*(1 - pbinom(a, n, p_a)) 
+  #} else {
+  #  1 + 1000*(p_f-1)^2
+  #}
+  
 }
 
 get_ocs_pc <- function(cs, n, x0, x1, n_e, n_t)
@@ -256,12 +264,27 @@ get_ocs_pc <- function(cs, n, x0, x1, n_e, n_t)
 
     
     # Locally optimise using the worst error rate from the above as the start point
+     #print(cs)
     
-    opt_a <- optim(c(0.9,0.9), fn=get_oc_pc, lower = c(0.1,0.1), upper=c(1,1),
-                 cs=cs, n=n, xi=x0, tI=T, s=s, f=f, a=a, n_e=n_e, n_t=n_t, method="L-BFGS-B")
+    opt_a <- optim(c(0.9,0.9), fn=get_oc_pc,# lower = c(0.1,0.1), upper=c(1,1),
+                 cs=cs, n=n, xi=x0, tI=T, s=s, f=f, a=a, n_e=n_e, n_t=n_t)#, method="L-BFGS-B")
+
+    # while(opt_a$convergence != 0){
+    #   k <- runif(2)
+    #   print(k)
+    #   opt_a <- optim(2, fn=get_oc_pc, #lower = c(0.1,0.1), upper=c(1,1),
+    #                  cs=cs, n=n, xi=x0, tI=T, s=s, f=f, a=a, n_e=n_e, n_t=n_t)#, method="L-BFGS-B")
+    # }
     
-    opt_b <- optim(c(0.9,0.9), fn=get_oc_pc, lower = c(0.1,0.1), upper=c(1,1),
-                 cs=cs, n=n, xi=x1, tI=F, s=s, f=f, a=a, n_e=n_e, n_t=n_t, method="L-BFGS-B")
+    opt_b <- optim(c(0.9,0.9), fn=get_oc_pc,# lower = c(0.1,0.1), upper=c(1,1),
+                 cs=cs, n=n, xi=x1, tI=F, s=s, f=f, a=a, n_e=n_e, n_t=n_t)#, method="L-BFGS-B")
+  
+    # while(opt_b$convergence != 0){
+    #   k <- runif(2)
+    #   print(k)
+    #   opt_b <- optim(k, fn=get_oc_pc,# lower = c(0.1,0.1), upper=c(1,1),
+    #              cs=cs, n=n, xi=x1, tI=F, s=s, f=f, a=a, n_e=n_e, n_t=n_t)#, method="L-BFGS-B")
+    # }
     
   
   c(-opt_a$value, 1-opt_b$value)
@@ -337,6 +360,50 @@ for(i in c(234, 234*1.1, 234*1.2)){
 }
 
 saveRDS(df, "./data/eval.Rda")
+```
+
+Plot the results
+
+```{r}
+df <- readRDS("./data/eval.Rda")
+names(df)[4] <- "np"
+df$a <- ifelse(df$t=="FT", -df$a, df$a)
+df$b <- ifelse(df$t=="FT", -df$b, df$b)
+
+labels_nt <- c("234" = "234", "257.4" = "257", "280.8" = "281")
+
+ggplot(df[df$n_t==234 & df$null_pow==0.6,], aes(a, b, colour=as.factor(np), linetype=t)) + geom_line() + 
+  facet_grid(n_t ~ null_pow, labeller = labeller(n_t = labels_nt)) +
+  theme_minimal() + coord_fixed() +
+  xlab(expression(alpha)) + ylab(expression(beta)) +
+  scale_color_manual(name=expression(n[p]), values=colours) +
+  scale_linetype(name="Method", labels=c("Feasibility test", "Standard practice")) +
+  theme(panel.spacing = unit(1, "lines"), legend.position="bottom") +
+  scale_x_continuous(breaks=c(0, 0.25, 0.5, 0.75, 1)) 
+  #geom_segment(aes(x = 0, y = 1, xend = 1, yend = 0), linetype=3, colour="black")
+
+#ggsave("U:/Projects/MRC SDF/WP1/Papers/Feasibility test/Figures/eval.pdf", height=16, width=18, units="cm")
+```
+Pick out some specific numbers for comparison.
+```{r}
+df[df$nul_pow == 0.7 & df$a > 0.08 & df$a < 0.12 & df$t == "FT" & df$np == 30,]
+
+df[df$n_t == 234 & df$a > 0.08 & df$a < 0.12 & df$t == "FT" & df$np == 30,]
+```
+
+Look at one example graph in more detail.
+```{r}
+sub <- df[df$nul_pow == 0.6 & df$n_t == "234",]
+
+ggplot(sub, aes(a,b,colour=as.factor(np), linetype=t)) + geom_line() +
+  theme_minimal() + coord_fixed() +
+  xlab(expression(alpha)) + ylab(expression(beta)) +
+  scale_color_manual(name=expression(n[p]), values=colours) +
+  scale_linetype(name="Method", labels=c("Feasibility test", "Standard practice")) +
+  scale_x_continuous(breaks=c(0, 0.2, 0.4, 0.6, 0.8, 1)) + 
+  scale_y_continuous(breaks=c(0, 0.2, 0.4, 0.6, 0.8, 1)) 
+
+#ggsave("U:/Projects/MRC SDF/WP1/Papers/Feasibility test/Figures/ex_ocs.pdf", height=9, width=14, units="cm")
 ```
 
 ## Example
