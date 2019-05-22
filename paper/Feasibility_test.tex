@@ -37,25 +37,18 @@
 \email{d.t.wilson@leeds.ac.uk}}
 
 \abstract{
-% 250 word limit
-\textbf{Background}: The power of a large clinical trial can be adversely affected by low recruitment, follow-up and adherence rates. External pilot trials, conducted before a planned definitive trial but on a smaller scale, can be used to estimate these parameters and identify any issues. Pilot trials commonly specify decisions rules which use these estimates to determine if the definitive trial is feasible and should go ahead, but there is little methodological research underpinning how they, or the pilot sample size, should be chosen.
-
-\textbf{Methods}: We propose that the feasibility of a definitive clinical trial should be assessed using a statistical test of the associated pilot trial data. We argue that recruitment, follow-up and adherence rates are of interest primarily in how they affect the power of the definitive trial, and so use power as a measure of feasibility. Focussing on the common scenario of a two-arm parallel group definitive trial with a single normally distributed primary endpoint, we show how hypotheses for this test can be defined. We suggest a test statistic and provide its sampling distribution, thus defining type I and II error rates, and show how these can be calculated and used to inform the pilot trial sample size and progression decisions. We then extend our formulation to include estimating the standard deviation of the primary endpoint.
-
-\textbf{Illustration}: We use our method to re-design the TIGA-CUB trial, a pilot trial comparing a psychotherapy with treatment as usual for children with conduct disorders. Our results show that reasonable error rates for the pilot can be obtained without inflating its sample size, and that the standard practice of applying several independent progression criteria is substantially less efficient.
-% Think about what we want to emphasise as the key messages throughout. We aren't saying that we can just carry on as normal with the simple rules-of-thumb - we are showing that a careful statistical asessment should be used to find the most appropriate design.
-
-\textbf{Conclusions}: The proposed hypothesis test can substantially improve the quality of decision making following an external pilot trial in comparison to current standard practice, whilst maintaining the pilot sample size at typical levels.
+% 250 word limit for SiM
+The power of a large clinical trial can be adversely affected by low recruitment, follow-up and adherence rates. External pilot trials estimate these parameters and feed these into pre-specified decision rules to determine if the definitive trial is feasible and should go ahead, but there is little methodological research underpinning how they, or the pilot sample size, should be chosen. We propose that the feasibility of a definitive clinical trial should be assessed using a statistical test of the associated pilot trial data. We use the power of the main trial, as a function of recruitment, follow-up and adherence rates, as a measure of feasibility. We use this measure to define hypotheses to test in the pilot, propose a test statistic, and show how the error rates of this test can be calculated for the common scenario of a two-arm parallel group definitive trial with a single normally distributed primary endpoint. We use our method to re-design the TIGA-CUB trial, a pilot trial comparing a psychotherapy with treatment as usual for children with conduct disorders. We then extend our formulation to include estimating the standard deviation of the primary endpoint.
 }
 
 % Up to 6 keywords
-\keywords{Pilot trials, sample size}
+\keywords{Pilot, external pilot, feasibility, sample size}
 
 \maketitle
 
 \section{Introduction}\label{sec:intro}
 
-Randomised Controlled Trials (RCTs) often fail to recruit to target \cite{Sully2013}, leading to an analysis with less power than intended. Power can also be adversely affected by unexpectedly large rates of attrition, poor adherence to the allocated treatment \cite{Fay2006}, and incorrect specification of a nuisance parameter such as the standard deviation of a continuous endpoint \cite{Teare2014}. A common approach to anticipatethese problems is to run a small version of the intended trial, known as an external pilot trial, to obtain estimates of the relevant parameters and decide if, and how, a larger `definitive' trial should be conducted  \cite{Eldridge2016}. This decision is typically made with reference to so-called \emph{Progression Criteria} (PCs), a set of conditions which must be satisfied for the definitive trial to be considered feasible \cite{Avery2017}. In the case of quantitative PCs such as those pertaining to recruitment rate, parameter estimates are computed using the pilot data and then compared against threshold values. If all estimates exceed their respective thresholds, it is recommended that the definitive trial should be conducted. A recent workshop identified that recruitment, follow-up, and intervention adherence have emerged as common targets of progression criteria \cite{Avery2017}. 
+Randomised Controlled Trials (RCTs) often fail to recruit to target \cite{Sully2013}, leading to an analysis with less power than intended. Power can also be adversely affected by unexpectedly large rates of attrition, poor adherence to the allocated treatment \cite{Fay2006}, and incorrect specification of a nuisance parameter such as the standard deviation of a continuous endpoint \cite{Teare2014}. A common approach to anticipate these problems is to run a small version of the intended trial, known as an external pilot trial, to obtain estimates of the relevant parameters and decide if, and how, a larger `definitive' trial should be conducted  \cite{Eldridge2016}. This decision is typically made with reference to so-called \emph{Progression Criteria} (PCs), a set of conditions which must be satisfied for the definitive trial to be considered feasible \cite{Avery2017}. In the case of quantitative PCs such as those pertaining to recruitment rate, parameter estimates are computed using the pilot data and then compared against threshold values. If all estimates exceed their respective thresholds, it is recommended that the definitive trial should be conducted. A recent workshop identified that recruitment, follow-up, and intervention adherence have emerged as common targets of progression criteria \cite{Avery2017}. 
 
 The increasing use of pilot trials has led to several clarifications regarding their definition, design and conduct \cite{Lancaster2004, Craig2008, Arain2010, Thabane2010, Eldridge2016}; an extension to the CONSORT statement \cite{Eldridge2016a}; and a dedicated journal \cite{Lancaster2015}. Despite this, there is little methodological research available to help researchers choose appropriate progression criteria \cite{Avery2017}. Estimates computed using the small samples available in pilots can suffer from substantial imprecision \cite{Cooper2018}, leading to the meeting or missing of PCs by chance alone \cite{Eldridge2015}. One suggested solution has been to specify two threshold values corresponding to hard `stop' and `go' decisions for each PC \cite{Avery2017}. If an estimate falls between these thresholds an intermediate `modify' decision is suggested, providing the flexibility to argue that the definitive trial will in fact be feasible providing some modifications are made to the intervention or the trial protocol in response to what was observed in the pilot. Although increasingly common \cite{Eldridge2016a}, it is not clear how such thresholds should be pre-specified (as required by the NIHR, a major funder of pilot trials in the UK \cite{NIHR2017}) when it will in general be impossible to know the magnitude of possible improvements until after the pilot has been conducted. We therefore focus on making a binary stop/go decision after the pilot trial.
 
@@ -81,91 +74,77 @@ In this paper we develop a hypothesis test for external pilot trials assessing r
 
 We consider an external pilot trial which is being conducted in advance of a large two-arm parallel group trial comparing an intervention with a control with respect to a normally distributed primary outcome. Initially, we will assume the standard deviation of the outcome (constant between arms) is known, though this will be relaxed in Section \ref{sec:extension}. The pilot trial will take the form of a smaller version of the definitive trial. 
 
-We assume the design of the definitive trial to be fixed prior to the pilot. In particular, we assume that the target sample size of the definitive trial, denoted $n_t$, is known. We also know the number of eligible participants who will be approached to take part in the definitive trial, $n_e$ (following from knowing the time-scale of the trial and the incidence / presentation rate). The definitive trial will continue to recruit until either the target sample is obtained, or the number of eligible participants is exhausted. The pilot trial will assess the recruitment, follow-up, and adherence rates which will govern the definitive trial. Recruitment rate is defined as the proportion of those approached to take part in the trial who consent. Follow-up rate is the proportion of those participants who consent who provide primary outcome data. Adherence rate is defined as the proportion of those participants who consent and are randomised to the intervention arm who meet some adherence criteria, such as attending a minimal number of treatment sessions. 
+The planned design for the main trial aims to recruit $n$ participants to be randomised equally between arms. Recruitment is to take place from within a pool of screened and eligible potential participants, with the size of this pool known and denoted $n_e$. The trial will continue to recruit until either the target sample is obtained, or the number of eligible participants is exhausted.
+
+The pilot trial will assess the recruitment, follow-up, and adherence rates which will govern the definitive trial. Recruitment rate is defined as the proportion of those approached to take part in the trial who consent. Follow-up rate is the proportion of those participants who consent who provide primary outcome data. Adherence rate is defined as the proportion of those participants who consent and are randomised to the intervention arm who meet some adherence criteria, such as attending a minimal number of treatment sessions. 
 
 Our goal is to describe a parametric form of decision rule that can be used after the external pilot trial to make a stop/go decision, and to provide a way to evaluate the statistical property of any such rule for any choice of pilot trial sample size.
 
 \section{Proposed hypothesis test of feasibility}\label{sec:methods}
 
-The general strategy we use is as follows. We define the feasibility of the definitive trial with respect to the power it will have to detect a minimal clinically important difference when it exists, a function of the true recruitment, follow-up and adherence rates. Denoting these parameters by $\phi$ and the power function by $g(\phi)$, we then define two subspaces of the parameter space $\Phi$:
-\begin{align*}
-\Phi_0 = \{\phi \in \Phi ~ | ~ g(\phi) <= p_0 \}; \\
-\Phi_1 = \{\phi \in \Phi ~ | ~ g(\phi) >= p_1 \}.
-\end{align*}
-That is, $\Phi_0$ is the set of all parameter values which would lead to the definitive trial having a power of $p_0$ or less. We will refer to $\Phi_0$ as the null hypothesis. The alternative hypothesis $\Phi_1$ is the set of all parameter values leading to the definitive trial having a power of at least $p_1$. The threshold values $p_0, p_1$ are chosen such that if $\phi \in \Phi_0$ we would like to control the probability of mistakenly proceeding to the definitive trial (a type I error). Similarly, if $\phi \in \Phi_1$ then we would like to control the probability of mistakenly discarding the intervention (a type II error).
-
-Testing feasibility in the pilot trial will involve calculating a statistic $s(\hat{\phi})$ based on the pilot estimate $\hat{\phi}$ and proceeding to the definitive trial if and only if it exceeds some pre-specified  critical value $c$. We can then define the type I and II error rates of the pilot trial:
-\begin{align}\label{eqn:ocs}
-\alpha = \max_{\phi \in \Phi_0} Pr[ s(\hat{\phi}) > c ~ | ~ \phi], \\
-\beta = \max_{\phi \in \Phi_1} Pr[ s(\hat{\phi}) < c ~ | ~ \phi].
-\end{align}
-
-In the remainder of this section we will describe the relevant power function $g(\phi)$, a statistic $s(\hat{\phi})$ and its sampling distribution in the pilot, and a way to calculate the error rates resulting from specific choices of pilot sample size $n_p$ and critical value $c$.
+%In this section we will describe the relevant power function $g(\phi)$, a statistic $s(\hat{\phi})$ and its sampling distribution in the pilot, and a way to calculate the error rates resulting from specific choices of pilot sample size $n_p$ and critical value $c$.
 
 \subsection{Power of the definitive trial}\label{sec:power}
 
-\begin{table}
-\centering
-\caption{Notation.}
-\begin{tabular}{l p{8cm}}
-\toprule
-$\phi_r$ & Recruitment rate \\
-$\phi_a$ & Adherence rate \\
-$\phi_f$ & Follow-up rate \\
-$\phi$ & $(\phi_r, \phi_a, \phi_f)$ \\
-$n_e$ & number of eligible participants expected to be approach for consent \\
-$n_t$ & target sample size (per arm) of the definitive trial \\
-$\mu$ & Between group difference \\
-$t_i$ & Binary treatment arm indicator for participant $i$ \\
-$a_i$ & Binary treatment adherence indicator for participant $i$ \\
-$\bar{Y}_j$ & Mean response in arm $j$ \\
-$C$ & Number of consenting participants (per arm) \\
-$R$ & Number of successfully recruited participants (per arm) \\
-$F_j$ & Number of participants successfully followed-up in arm $j$ \\
-$A$ & Number of participants who adhere to treatment in the intervention arm \\
-$g(\phi)$ & Power of the definitive trial conditional on $\phi$ \\
-$R_p^-$ & Number of eligible participants who do not consent to the pilot trial \\
-$h(n_p, c, \phi)$ & Power of the pilot trial with $n_p$ participants in each arm, critical value $c$, and conditional on $\phi$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Recall that recruitment in the definitive trial will continue until either all $n_e$ eligible participants have been approached, or until $r = n_t$. For each eligible participant, the probability of consenting is denoted $\phi_r$. For each recruited participant, the probability of successful follow-up is denoted $\phi_f$. And for each participant in the intervention arm who is successfully followed-up, the probability of them adhering to the intervention is denoted $\phi_a$. We assume that adherence is absolute, in the sense that no treatment effect is obtained for non-adherers. The continuous primary outcome for patient $i$ can be modelled as
+We consider main trials with a primary analysis comparing mean outcomes of a normally distributed endpoint in two groups. Recall that recruitment in the definitive trial will continue until either all $n_e$ eligible participants have been approached, or until $r = n_t$. For each eligible participant, the probability of consenting is denoted $\phi_r$. For each recruited participant, the probability of successful follow-up is denoted $\phi_f$. And for each participant in the intervention arm who is successfully followed-up, the probability of them adhering to the intervention is denoted $\phi_a$. We assume that adherence is absolute, in the sense that no treatment effect is obtained for non-adherers. The continuous primary outcome for patient $i$ can be modelled as
 $$
 y_i = t_i a_i \mu + e_i,
 $$
 where $t_i$ and $a_i$ are binary indicators of treatment arm and adherence respectively, $e_i \sim N(0, \sigma^2)$ is the residual term, and we have committed the usual constant intercept for notational simplicity and without loss of generality.
 
-Power in the definitive trial is determined by the sampling distribution of the difference in group means, $\bar{Y}_1 - \bar{Y}_0$. We assume that the definitive trial per-arm sample size is greater than 30, allowing the sampling distributions of the group sample means to be approximated by normal distributions. The sample means are
+Power in the main trial is determined by the sampling distribution of the difference in group means, $\bar{Y}_1 - \bar{Y}_0$. We assume that the definitive trial per-arm sample size is greater than 30, allowing the sampling distributions of the group sample means to be approximated by normal distributions. The power of the main trial to detect a minimal clinically important difference $\mu$ is then
+$$
+g(\phi, n) = \Phi \left(\frac{\mathbb{E}[\bar{Y}_1 - \bar{Y}_0]}{\sqrt{Var(\bar{Y}_1 - \bar{Y}_0)}} - z_{1-\alpha} \right),
+$$
+where $\alpha$ denotes the (one-sided) type I error rate. Noting that the expectation and variance of the mean difference will depend on the values of $\phi$ and $n$, we write
+$$
+g(\phi, n) = \Phi \left( x(\phi) - z_{1-\alpha} \right).
+$$
+The appendix will show that
+$$
+x(\phi, n) =  \frac{ \phi_a\mu \sqrt{\phi_f \mathbb{E}[R]} } {\sqrt{2\sigma^2 + \mu^2 \phi_a(1-\phi_a)}},
+$$
+where $\mathbb{E}[R]$ is the expected number of participants recruited into the main trial,
+$$
+\mathbb{E}[R] = \sum_{k=0}^{n-1} k{n_e \choose k} \phi_r^k (1-\phi_r)^{n_e - k} + n Pr(C \geq n).
+$$
+For the main trial to have a target power of at least $1 - \beta^*$, we require $x(\phi, n) \geq \Phi^{-1}(1 - \beta^*) + z_{1-\alpha}$. We propose to define points in the null and alternative hypotheses by considering the $n$ required to obtain a power of $1 - \beta^*$. We consider a point $\phi$ to be in the null hypothesis $\Phi_0 \subset \Phi$ if it leads to a required sample size of $n_{max}$ or more to obtain target power. A point is in the alternative hypotheses $\Phi_1 \subset \Phi$ if it leads to a required sample size of $n_{min}$ or less. Formally,
 \begin{align*}
-\bar{Y}_1 &= \frac{A}{F_1}\mu + \frac{1}{F_1} \sum_{i=1}^{F_1} e_i, \\
-\bar{Y}_0 &= \frac{1}{F_0}\sum_{i=1}^{F_0} e_i,
+\Phi_0 = \{\phi \in \Phi ~ | ~ x(\phi, n_{max}) \leq \Phi^{-1}(1 - \beta^*) + z_{1-\alpha} \}; \\
+\Phi_1 = \{\phi \in \Phi ~ | ~ x(\phi, n_{min}) \geq \Phi^{-1}(1 - \beta^*) + z_{1-\alpha}  \}.
 \end{align*}
-where $F_j$ denotes the number of participants in arm $j$ who are followed-up, and $A$ denotes the number of participants in the intervention arm who both adhere \emph{and} are follow-up. These sample means have expectations $E[\bar{Y}_1 | \phi] = E[\frac{A}{F_1}\mu | \phi] = \phi_a \mu$ and $E[\bar{Y}_0 | \phi]$. The appendix will show that
-\begin{align}\label{eqn:vars}
-Var(\bar{Y}_1) &= \frac{\sigma^2}{\phi_f E[R]} + \frac{\mu^2}{\phi_f E[R]} \phi_a (1-\phi_a), \\
-Var(\bar{Y}_0) &= \frac{\sigma^2}{\phi_f E[R]}.
+
+The values $n_{min}, n_{max}$ are chosen such that if $\phi \in \Phi_0$ we would like to control the probability of mistakenly proceeding to the definitive trial (a type I error). Similarly, if $\phi \in \Phi_1$ then we would like to control the probability of mistakenly discarding the intervention (a type II error). Testing feasibility in the pilot trial will involve calculating a statistic $s(\hat{\phi})$ based on the pilot estimate $\hat{\phi}$ and proceeding to the definitive trial if and only if it exceeds some pre-specified  critical value $c$. We can then define the type I and II error rates of the pilot trial:
+\begin{align}\label{eqn:ocs}
+\alpha = \max_{\phi \in \Phi_0} Pr[ s(\hat{\phi}) > c ~ | ~ \phi], \\
+\beta = \max_{\phi \in \Phi_1} Pr[ s(\hat{\phi}) < c ~ | ~ \phi].
 \end{align}
-The power of the trial can then be obtained by substituting the expectation and variance of the sample means into the usual formula (which, again, assumes they are normally distributed):
-\begin{align*}
-g(\phi) &= \Phi \left(\frac{E[\bar{Y}_1 - \bar{Y}_0]}{\sqrt{Var(\bar{Y}_1 - \bar{Y}_0)}} - z_{1-\alpha} \right) \\
-&= \Phi \left( \frac{\phi_a\mu}{\sqrt{ \frac{\sigma^2}{\phi_f E[R]} + \frac{\mu^2}{\phi_f E[R]} \phi_a (1-\phi_a) + \frac{\sigma^2}{\phi_f E[R]}} } - z_{1-\alpha} \right) \\
-&= \Phi \left( \frac{ \phi_a\mu \sqrt{\phi_f E[R]} } {\sqrt{2\sigma^2 + \mu^2 \phi_a(1-\phi_a)}} - z_{1-\alpha} \right) \\
-&= \Phi \left( x(\phi) - z_{1-\alpha} \right),
-\end{align*}
-where 
-$$
-x(\phi) =  \frac{ \phi_a\mu \sqrt{\phi_f E[R]} } {\sqrt{2\sigma^2 + \mu^2 \phi_a(1-\phi_a)}}.
-$$
-We can now define our hypotheses as
-\begin{align*}
-\Phi_0 &= \{\phi ~ | ~ x(\phi) <= x_0 \} \\
-\Phi_1 &= \{\phi ~ | ~ x(\phi) >= x_1 \},
-\end{align*}
-where 
-$$
-x_i = \Phi^{-1}(p_i) + z_{1-\alpha} \text{ for } i = 0,1.
-$$
+
+%\begin{table}
+%\centering
+%\caption{Notation.}
+%\begin{tabular}{l p{8cm}}
+%\toprule
+%$\phi_r$ & Recruitment rate \\
+%$\phi_a$ & Adherence rate \\
+%$\phi_f$ & Follow-up rate \\
+%$\phi$ & $(\phi_r, \phi_a, \phi_f)$ \\
+%$n_e$ & number of eligible participants expected to be approach for consent \\
+%$n_t$ & target sample size (per arm) of the definitive trial \\
+%$\mu$ & Between group difference \\
+%$t_i$ & Binary treatment arm indicator for participant $i$ \\
+%$a_i$ & Binary treatment adherence indicator for participant $i$ \\
+%$\bar{Y}_j$ & Mean response in arm $j$ \\
+%$C$ & Number of consenting participants (per arm) \\
+%$R$ & Number of successfully recruited participants (per arm) \\
+%$F_j$ & Number of participants successfully followed-up in arm $j$ \\
+%$A$ & Number of participants who adhere to treatment in the intervention arm \\
+%$g(\phi)$ & Power of the definitive trial conditional on $\phi$ \\
+%$R_p^-$ & Number of eligible participants who do not consent to the pilot trial \\
+%$h(n_p, c, \phi)$ & Power of the pilot trial with $n_p$ participants in each arm, critical value $c$, and conditional on $\phi$ \\
+%\bottomrule
+%\end{tabular}
+%\end{table}
 
 %Note that the majority of the difference in power comes from the numerator. The denominator differs from the usual by the term $\mu^2\phi_a(1-\phi_a)$, which increases with $\mu$ and as $\phi_a \rightarrow 0.5$. But note that
 %$$
@@ -237,11 +216,22 @@ An alternative formulation is to (for fixed $n_p$) cast the problem as one of co
 
 A problem of this nature can be solved numerically using the NSGA-II algorithm \cite{Deb2002}, as implemented in the R package `mco' \cite{Mersmann2014}. It will provide a set of critical values and corresponding points in the null and alternative hypotheses offering different balances between type I and type II error rates. These error rates can then be plotted, and an appropriate design selected from them.
 
+\subsection{Comparison}
+
+An alternative method, against which we can compare the proposed test, is to make the stop/go decision based on several independent progression criteria. That is, decision rules based on three critical values $\mathbf{c} = (c_f, c_a, c_r)$, where we proceed to the definitive trial only when $\hat{\phi}_f > c_f$, $\hat{\phi}_a > c_a$ and $\hat{\phi}_r > c_r$. Assuming independence between the parameter estimates, the probability of this event is then
+\begin{align*}
+f(n_p, \mathbf{c}, \phi) &= Pr[\hat{\phi}_r > c_r ~ | ~ \phi] \times Pr[ \hat{\phi}_f > c_f ~ | ~ \phi] \times Pr[ \hat{\phi}_a > c_a ~ | ~ \phi] \\
+&= F_{r_-}( 2n_p/c_r - 2n_p ~ | ~ \phi) \times [1-F_f(2n_p c_f ~ | ~ \phi)] \times [1-F_a(n_p c_a ~ | ~ \phi)],
+\end{align*}
+where $F_{r_-}(.), F_f(.)$ and $F_a(.)$ are the cumulative distribution functions for the random variables $R_-, F$ and $A$ in the pilot, respectively. For any given choice of pilot sample size $n_p$ and progression criteria $\mathbf{c}$, type I (II) error rates are defined as before by maximising $f(n_p, \mathbf{c}, \phi)$ over the null (alternative) hypotheses. To find a set of progression criteria which offer different trade-offs between minimising type I and II error rates, we solve the following bi-objective optimisation problem:
+
+\begin{alignat*}{1}
+\min_{\mathbf{c} \in [0,1]^3} ~ & \left( \max_{\phi \in \Phi_0} f(n_p, \mathbf{c}, \phi) , ~ \min_{\phi \in \Phi_1} f(n_p, \mathbf{c}, \phi) \right). \\
+\end{alignat*}
+
 \section{Application to a pilot trial of a psychotherapy intervention}
 
-TIGA-CUB was a two-arm, parallel group, individually randomised pilot trial aiming to determine the feasibility of a definitive trial comparing second-line, short-term, manualised psychoanalytic child psychotherapy with treatment as usual for children with conduct disorders. 
-
-The trial's objectives included estimation of the rate at which eligible dyads (where a child - carer dyad was the unit of randomisation and observation) consented to take part in the trial; the level of primary outcome missing data; the rate of adherence to the intervention; and the parameters required for the sample size calculation of the main study. 	Progression criteria relating to recruitment, follow-up and adherence rate were specified, with the definitive trial to go ahead only if:
+TIGA-CUB was a two-arm, parallel group, individually randomised pilot trial aiming to determine the feasibility of a definitive trial comparing second-line, short-term, manualised psychoanalytic child psychotherapy with treatment as usual for children with conduct disorders. The trial's objectives included estimation of the rate at which eligible dyads (where a child - carer dyad was the unit of randomisation and observation) consented to take part in the trial; the level of primary outcome missing data; the rate of adherence to the intervention; and the parameters required for the sample size calculation of the main study. Progression criteria relating to recruitment, follow-up and adherence rate were specified, with the definitive trial to go ahead only if:
 \begin{enumerate}
 \item Recruited was to target;
 \item Attendance was at more than 50\% of sessions in the intervention arm;
@@ -250,7 +240,7 @@ The trial's objectives included estimation of the rate at which eligible dyads (
 
 The sample size was determined by using the rule-of-thumb that 30 participants per arm is sufficient to estimate a standard deviation of a continuous primary outcome which is common across arms \cite{Lancaster2004}. Assuming 90\% of pilot participants are followed-up, a sample size of 60 participants in total was chosen and justified in terms of the expected width of 95\% confidence intervals around estimates of the standard deviation (0.39 multiplied by SD), the follow-up rate ($\pm 7$\%), and the adherence rate (between $\pm 8$\% to 18\%).
 
-To apply the proposed method, we must first define the parameters relating to the anticipated definitive trial. Assuming a common standard deviation of the primary outcome of $\sigma=1$ and that an effect size of $\mu = 0.3$ is the minimally clinically important difference, a target definitive trial sample size of $n_t = 234$ will give 90\% power under perfect follow-up and adherence. We assume that $n_e = 500$ eligible participants are available over the course of the trial. We define the pilot alternative hypothesis by setting $p_1 = 0.8$, meaning that we would not want to miss a definitive trial with a true power of 80\% or more. The null hypothesis is defined by setting $p_0 = 0.6$, indicating that if the definitive trial were to have a true power of 60\% or less we would like to halt evaluation. The boundaries of the resulting hypotheses $\Phi_0$ and $\Phi_1$ are plotted in Figure \ref{fig:hyps}. The trade-offs between the three parameters are clear, with decreases in one being compensated by increases in the others in order to maintain power. As recruitment rate increases beyond around 0.5 there are no opportunities for trade-offs with the remaining parameters because it becomes certain that the recruitment target of $n_t$ will be met, and so the sample size will not increase.
+To apply the proposed method, we assumed a common primary outcome standard deviation of $\sigma = 1$ and an effect size of $\mu = 0.3$ to be detected in the main trial. Noting that a sample size of  $n_t = 234$ would give a target power of 90\% under perfect follow-up and adherence, we set $n_{max} = 500$ and $n_{min} = 312$. That is, if the main trial required $n = 500$ or more in order to achieve 90\% power we would consider it infeasible and would like to halt evaluation whereas a requirement of $n = 312$ or less would indicate feasibility and we would not want to mistakenly conclude otherwise and discard a promising intervention. We assume that $n_e = 500$ eligible participants are available over the course of the trial. The boundaries of the resulting hypotheses $\Phi_0$ and $\Phi_1$ are plotted in Figure \ref{fig:hyps}. The trade-offs between the three parameters are clear, with decreases in one being compensated by increases in the others in order to maintain power. As recruitment rate increases beyond around 0.5 there are no opportunities for trade-offs with the remaining parameters because it becomes certain that the recruitment target of $n_t$ will be met, and so the sample size will not increase.
 
 \begin{figure}
 \centering
@@ -269,21 +259,7 @@ Given the hypotheses and assuming follow-up and adherence outcomes are independe
 \end{figure}
 
 % Comparison
-To provide a comparison with the proposed method, we also calculate the error rates available using the standard approach to setting progression criteria. That is, we considered decision rules based on three critical values $c_f, c_a$ and $c_r$, where we proceed to the definitive trial only when $\hat{\phi}_f > c_f$, $\hat{\phi}_a > c_a$ and $\hat{\phi}_r > c_r$. Continuing to assume independence between the parameter estimates, the probability of this event is then
-\begin{align*}
-Pr[\text{go} ~ | ~ \phi] &= Pr[\hat{\phi}_r > c_r ~ | ~ \phi] \times Pr[ \hat{\phi}_f > c_f ~ | ~ \phi] \times Pr[ \hat{\phi}_a > c_a ~ | ~ \phi] \\
-&= F_{r_-}( 2n_p/c_r - 2n_p ~ | ~ \phi) \times [1-F_f(2n_p c_f ~ | ~ \phi)] \times [1-F_a(n_p c_a ~ | ~ \phi)],
-\end{align*}
-Where $F_{r_-}(.), F_f(.)$ and $F_a(.)$ are the cumulative distribution functions for the random variables $R_-, F$ and $A$ in the pilot, respectively. We calculated the error rates available for a pilot sample size of $n_p = 50$ by extending the optimisation problem described in Section \ref{sec:ocs} to search over the space of the three critical values  $c_f, c_a$ and $c_r$. Formally, we solved
-
-\begin{alignat*}{1}
-\max ~ & \left(h(n_p, c, \phi_0) , ~ 1 - h(n_p, c, \phi_1) \right) \\
-\text{subject to} ~ & (c_r, a_a, c_f) \in [0,1]^3, \\
-& \phi_0 \in \Phi_0, \\
-& \phi_1 \in \Phi_1. 
-\end{alignat*}
-
-Figure \ref{fig:ex_ocs} shows that, regardless of the PC thresholds used, the procedure is very inefficient in comparison to the proposed test. For example, recall that the proposed test can give a power of around 0.95 for a type I error rate of around 0.1. Using the standard approach and maintaining the same type I error rate, power is reduced to around 0.35.
+To provide a comparison with the proposed method, we also calculate the error rates available using the standard approach to setting progression criteria. Figure \ref{fig:ex_ocs} shows that, regardless of the PC thresholds used, the procedure is very inefficient in comparison to the proposed test. For example, recall that the proposed test can give a power of around 0.95 for a type I error rate of around 0.1. Using the standard approach and maintaining the same type I error rate, power is reduced to around 0.35.
 
 An alternative view which may be helpful when designing the pilot trial is to examine the probability of proceeding to the definitive trial as a function of $p_0$, the power used to define the null hypothesis. If $p_1$ is kept fixed at, say, $p_1 = 0.8$, we can identify the critical value which will give a certain desired type II error rate in the pilot. This is illustrated in Figure \ref{fig:eval2}, which shows how the type I error rate of the pilot increases as $p_0$ increases for $n_p = 30, 50, 100$, keeping the type II error rate fixed all the while at 0.1. This view shows that, for example, while a large pilot sample of $n_p = 100$ will ensure we will never proceed to a definitive trial with a true power of $p_0 = 0.6$ is 0, it will also mean that when $p_0 = 0.75$ there will be no more that a 0.5 chance of proceeding. This might be considered rather low, when we have defined the alternative hypothesis using $p_1 = 0.8$. In comparison, the associated values when $n_p = 50$ are around 0.08 and 0.75.
 
@@ -368,7 +344,7 @@ One benefit of the proposed method is that it provides a rationale for the choic
 
 Our method leads to a binary stop/go decision. Increasingly, progression criteria in pilot trials are incorporating three outcomes, adding an additional intermediate `amber' decision between the `red' stop and `green' go \cite{Avery2017}. The intention is that if the pilot estimate is neither clearly good nor bad, but somewhere between, then it may be possible to make some modifications to the intervention or the trial protocol which would ensure the definitive trial will be feasible. If the effect of these modifications were known in advance (for example, the effect on recruitment of opening another centre), this process could potentially be modelled at the pilot design stage and its effect on pilot operating characteristics captured. We might expect this to be infeasible in general, though, as the nature and magnitude of modiifications will not in general be known until after the pilot has been completed. An example referred to in \cite{Avery2017} is of a trial manager being absent on sick leave for much of the pilot. Once this has been identified we might reasonably expect a large improvement in the recruitment rate in the definitive trial if measures to ensure cover of trial managers are put in place; but it would have been impossible to know, prior to the pilot, that such an effect was going to be available. This is important under the hypothesis testing paradigm we have used in this paper, where all decision rules must be pre-specified and should be adhered to.
 
-In practice, the pilot trial could be designed using our method and assuming no modifications will be possible, and, in the event that we wish to make modifications, another pilot could be done to assess the effect of these. This would appear to be in line with the MRC framework for complex intervention development and evaluation \cite{Craig2008}, although we are not ware of any examples where two or more pilots have been done in preparation for a definitive trial. Alternatively, if the modifications are made and we proceed directly to the definitive trial, we should be clear that the error rates associated with the pilot trial as designed will no longer apply. Even in the idealised scenario of knowing exactly what the effect of the modification will be, due to the binary nature of the endpoints being assessed in the pilot, error rates will not remain constant if hypotheses and critical values are shifted by the same amount. For example, consider a very simple example where we test one binary endpoint with parameter $\rho$ and our original null and alternative hypotheses are $\rho_0 = 0.7, \rho_1 = 0.8$ with a decision rule of proceeding if and only if $\hat{\rho} > 0.75$. If we become aware that we can modify the intervention and increase the parameter value by 0.2, we may want to shift the hypotheses to $\rho_0 = 0.5, \rho_1 = 0.6$ and decision rule to $\hat{\rho} > 0.75$. However, for a sample size of 60 being used to estimate $\rho$, this transformation will increase the type I error from 0.20 to 0.22 and type II error from 0.17 to 0.21. In the more realistic case where the modification effect is estimated with some error as opposed to known exactly, the error rates will deviate from the original numbers even more. A Bayesian approach may be the solution to these issues, since there is no requirement to observe pre-specified decision rules, and instead any beliefs about modification effects can be incorporated into the parameter distributions which can in turn be used to inform decision making. Finally, we note that although some methods proposed in the phase II drug trial setting have allowed for three outcomes \cite{Sargent2001, Hong2007}, they are designed to allow for other non-primary endpoints to influence the stop/go decision, not to allow for any modifications.
+In practice, the pilot trial could be designed using our method and assuming no modifications will be possible, and, in the event that we wish to make modifications, another pilot could be done to assess the effect of these. This would appear to be in line with the MRC framework for complex intervention development and evaluation \cite{Craig2008}, although we are not aware of any examples where two or more pilots have been done in preparation for a definitive trial. Alternatively, if the modifications are made and we proceed directly to the definitive trial, we should be clear that the error rates associated with the pilot trial as designed will no longer apply. Even in the idealised scenario of knowing exactly what the effect of the modification will be, due to the binary nature of the endpoints being assessed in the pilot, error rates will not remain constant if hypotheses and critical values are shifted by the same amount. For example, consider a very simple example where we test one binary endpoint with parameter $\rho$ and our original null and alternative hypotheses are $\rho_0 = 0.7, \rho_1 = 0.8$ with a decision rule of proceeding if and only if $\hat{\rho} > 0.75$. If we become aware that we can modify the intervention and increase the parameter value by 0.2, we may want to shift the hypotheses to $\rho_0 = 0.5, \rho_1 = 0.6$ and decision rule to $\hat{\rho} > 0.75$. However, for a sample size of 60 being used to estimate $\rho$, this transformation will increase the type I error from 0.20 to 0.22 and type II error from 0.17 to 0.21. In the more realistic case where the modification effect is estimated with some error as opposed to known exactly, the error rates will deviate from the original numbers even more. A Bayesian approach may be the solution to these issues, since there is no requirement to observe pre-specified decision rules, and instead any beliefs about modification effects can be incorporated into the parameter distributions which can in turn be used to inform decision making. Finally, we note that although some methods proposed in the phase II drug trial setting have allowed for three outcomes \cite{Sargent2001, Hong2007}, they are designed to allow for other non-primary endpoints to influence the stop/go decision, not to allow for any modifications.
 
 \subsection{Fixing the definitive trial design}
 
@@ -403,58 +379,73 @@ The proposed method could benefit from further methodological research. The prop
 Acknowledgements.
 
 %\bibliographystyle{unsrt}
-\bibliography{U:/Literature/Databases/DTWrefs}
+\bibliography{C:/Users/meddwilb/Documents/Literature/Databases/DTWrefs}
 
 \appendix
 %\section*{Derivations}
 
-We derive the variances of the group means in the definitive trial as given in equation \ref{eqn:vars}. By the law of total variance,
+The sample means are
+\begin{align*}
+\bar{Y}_1 &= \frac{A}{F_1}\mu + \frac{1}{F_1} \sum_{i=1}^{F_1} e_i, \\
+\bar{Y}_0 &= \frac{1}{F_0}\sum_{i=1}^{F_0} e_i,
+\end{align*}
+where $F_j$ denotes the number of participants in arm $j$ who are followed-up, and $A$ denotes the number of participants in the intervention arm who both adhere \emph{and} are follow-up. These sample means have expectations $E[\bar{Y}_1 | \phi] = E[\frac{A}{F_1}\mu | \phi] = \phi_a \mu$ and $E[\bar{Y}_0 | \phi]$. For the variance of the intervention group mean, we have by the law of total variance that
 \begin{equation}\label{eqn:int_group_mean}
-Var(\bar{Y}_1) = E[Var(\bar{Y}_1 | F_1, A)] + 
-E[Var(E[\bar{Y}_1 | F_1, A] | F_1)] + 
-Var(E[\bar{Y}_1 | F_1]).
+Var(\bar{Y}_1) = \mathbb{E}[Var(\bar{Y}_1 | F_1, A)] + 
+\mathbb{E}[Var(\mathbb{E}[\bar{Y}_1 | F_1, A] | F_1)] + 
+Var(\mathbb{E}[\bar{Y}_1 | F_1]).
 \end{equation}
 Taking each of these terms in turn:
 $$
-E[Var(\bar{Y}_1 | F, A)] = E \left[ \frac{\sigma^2}{F_1} \right] = \frac{\sigma^2}{\phi_f E[R]},
+\mathbb{E}[Var(\bar{Y}_1 | F, A)] = \mathbb{E} \left[ \frac{\sigma^2}{F_1} \right] = \frac{\sigma^2}{\phi_f E[R]},
 $$
 where $E[R]$ is the expected number of participants recruited in the intervention arm. Recall that we denote the number of eligible participants who consent by $C$. Then,
 $$
-E[R] = E[R ~|~ C < n_t] Pr(C < n_t) + E[R ~|~ C \geq n_t] Pr(C \geq n_t).
+\mathbb{E}[R] = \mathbb{E}[R ~|~ C < n_t] Pr(C < n_t) + \mathbb{E}[R ~|~ C \geq n_t] Pr(C \geq n_t).
 $$
-Note that $C$ follows a binomial distribution with size $n_e$ and probability $\phi_r$. Clearly, $E[R ~|~ C \geq n_t] = n_t$. We also have
+Note that $C$ follows a binomial distribution with size $n_e$ and probability $\phi_r$. Clearly, $\mathbb{E}[R ~|~ C \geq n_t] = n_t$. We also have
 $$
-E[R ~|~ C < n_t] = \frac{\sum_{k=0}^{n_t-1} k{n_e \choose k} \phi_r^k (1-\phi_r)^{n_e - k} } {Pr(C < n_t)},
+\mathbb{E}[R ~|~ C < n_t] = \frac{\sum_{k=0}^{n_t-1} k{n_e \choose k} \phi_r^k (1-\phi_r)^{n_e - k} } {Pr(C < n_t)},
 $$
 and so 
 $$
-E[R] = \sum_{k=0}^{n_t-1} k{n_e \choose k} \phi_r^k (1-\phi_r)^{n_e - k} + n_t Pr(C \geq n_t).
+\mathbb{E}[R] = \sum_{k=0}^{n_t-1} k{n_e \choose k} \phi_r^k (1-\phi_r)^{n_e - k} + n_t Pr(C \geq n_t).
 $$
 
 Returning to equation \ref{eqn:int_group_mean}, the second term is 
 \begin{align*}
-E \left[ Var(E[\bar{Y}_1 | F_1, A] ~|~ F_1) \right] &= E \left[ Var \left(\frac{A\mu}{F_1} ~|~ F_1 \right) \right] \\
-&= E \left[\frac{\mu^2}{F_1^2} Var(A ~|~ F_1) \right] \\
-&= E \left[ \frac{\mu^2}{F_1^2} F_1 \phi_a (1-\phi_a) \right] \\
-&= \frac{\mu^2}{\phi_f E[R]} \phi_a (1-\phi_a).
+\mathbb{E} \left[ Var(\mathbb{E}[\bar{Y}_1 | F_1, A] ~|~ F_1) \right] &= \mathbb{E} \left[ Var \left(\frac{A\mu}{F_1} ~|~ F_1 \right) \right] \\
+&= \mathbb{E} \left[\frac{\mu^2}{F_1^2} Var(A ~|~ F_1) \right] \\
+&= \mathbb{E} \left[ \frac{\mu^2}{F_1^2} F_1 \phi_a (1-\phi_a) \right] \\
+&= \frac{\mu^2}{\phi_f \mathbb{E}[R]} \phi_a (1-\phi_a).
 \end{align*}
 Finally,
 \begin{align*}
-Var(E[\bar{Y}_1 | F_1]) &= Var \left( E \left[ A ~|~ F_1 \right] \frac{\mu}{F_1} \right) \\
+Var(\mathbb{E}[\bar{Y}_1 | F_1]) &= Var \left( \mathbb{E} \left[ A ~|~ F_1 \right] \frac{\mu}{F_1} \right) \\
 &= Var \left( F_1 \phi_a \frac{\mu}{F_1} \right) \\
 &= 0.
 \end{align*}
 This then gives
 $$
-Var(\bar{Y}_1) = \frac{\sigma^2}{\phi_f E[R]} + \frac{\mu^2}{\phi_f E[R]} \phi_a (1-\phi_a).
+Var(\bar{Y}_1) = \frac{\sigma^2}{\phi_f \mathbb{E}[R]} + \frac{\mu^2}{\phi_f \mathbb{E}[R]} \phi_a (1-\phi_a).
 $$
 
 For the control group the sample mean will be $\bar{Y}_0 = \frac{1}{F_0}\sum_{i=1}^{F_0} e_i$. Its expectation is 0, and its variance is
 \begin{align*}
-Var(\bar{Y}_0) &= E[Var(\bar{Y}_0 | F_0)] + Var(E[\bar{Y}_0 | F_0]) \\
-&= E \left[ \frac{\sigma^2}{F_0} \right] + 0\\
-&= \frac{\sigma^2}{\phi_f E[R]}.
+Var(\bar{Y}_0) &= \mathbb{E}[Var(\bar{Y}_0 | F_0)] + Var(\mathbb{E}[\bar{Y}_0 | F_0]) \\
+&= \mathbb{E} \left[ \frac{\sigma^2}{F_0} \right] + 0\\
+&= \frac{\sigma^2}{\phi_f \mathbb{E}[R]}.
 \end{align*}
+
+The power of the trial can then be obtained by substituting the expectation and variance of the sample means into the usual formula (which, again, assumes they are normally distributed):
+\begin{align*}
+g(\phi) &= \Phi \left(\frac{\mathbb{E}[\bar{Y}_1 - \bar{Y}_0]}{\sqrt{Var(\bar{Y}_1 - \bar{Y}_0)}} - z_{1-\alpha} \right) \\
+&= \Phi \left( \frac{\phi_a\mu}{\sqrt{ \frac{\sigma^2}{\phi_f \mathbb{E}[R]} + \frac{\mu^2}{\phi_f \mathbb{E}[R]} \phi_a (1-\phi_a) + \frac{\sigma^2}{\phi_f \mathbb{E}[R]}} } - z_{1-\alpha} \right) \\
+&= \Phi \left( \frac{ \phi_a\mu \sqrt{\phi_f \mathbb{E}[R]} } {\sqrt{2\sigma^2 + \mu^2 \phi_a(1-\phi_a)}} - z_{1-\alpha} \right) \\
+&= \Phi \left( x(\phi) - z_{1-\alpha} \right),
+\end{align*}
+
+
 
 
 \end{document}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6840 64-bit) (preloaded format=pdflatex 2019.3.21)  2 APR 2019 09:40
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6840 64-bit) (preloaded format=pdflatex 2019.3.21)  22 MAY 2019 10:05
 entering extended mode
 **./Feasibility_test.tex
 (Feasibility_test.tex
@@ -865,7 +865,7 @@ the 'stix' package, so I'm not going to load amssymb.
 LaTeX Warning: Unused global option(s):
     [AMA,STIX1COL].
 
-No file Feasibility_test.aux.
+(Feasibility_test.aux)
 \openout1 = `Feasibility_test.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 23.
@@ -884,6 +884,7 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 23.
 LaTeX Font Info:    ... okay on input line 23.
 LaTeX Font Info:    Checking defaults for LS1/stix/m/n on input line 23.
 LaTeX Font Info:    Try loading font information for LS1+stix on input line 23.
+
 
 (C:\Users\meddwilb\AppData\Roaming\MiKTeX\2.9\tex\latex\stix\ls1stix.fd
 File: ls1stix.fd 2015/04/17 v1.1.2-latex STIX LS1 font definitions
@@ -987,105 +988,76 @@ LaTeX Info: Redefining \nameref on input line 23.
 
 \c@lstlisting=\count349
 LaTeX Font Info:    Font shape `T1/stix/bx/n' in size <9> not available
-(Font)              Font shape `T1/stix/b/n' tried instead on input line 54.
+(Font)              Font shape `T1/stix/b/n' tried instead on input line 47.
 LaTeX Font Info:    Font shape `T1/stix/bx/n' in size <18> not available
-(Font)              Font shape `T1/stix/b/n' tried instead on input line 54.
+(Font)              Font shape `T1/stix/b/n' tried instead on input line 47.
 LaTeX Font Info:    Try loading font information for LS1+stixscr on input line 
-54.
+47.
 (C:\Users\meddwilb\AppData\Roaming\MiKTeX\2.9\tex\latex\stix\ls1stixscr.fd
 File: ls1stixscr.fd 2015/04/17 v1.1.2-latex STIX script LS1 font definitions
 )
-LaTeX Font Info:    Try loading font information for LS2+stixex on input line 5
-4.
+LaTeX Font Info:    Try loading font information for LS2+stixex on input line 4
+7.
 
 (C:\Users\meddwilb\AppData\Roaming\MiKTeX\2.9\tex\latex\stix\ls2stixex.fd
 File: ls2stixex.fd 2015/04/17 v1.1.2-latex STIX extentions LS2 font definitions
 
 )
 LaTeX Font Info:    Try loading font information for LS1+stixfrak on input line
- 54.
+ 47.
 
 (C:\Users\meddwilb\AppData\Roaming\MiKTeX\2.9\tex\latex\stix\ls1stixfrak.fd
 File: ls1stixfrak.fd 2015/04/17 v1.1.2-latex STIX fraktur LS1 font definitions
 )
-LaTeX Font Info:    Try loading font information for LS1+stixbb on input line 5
-4.
+LaTeX Font Info:    Try loading font information for LS1+stixbb on input line 4
+7.
 
 (C:\Users\meddwilb\AppData\Roaming\MiKTeX\2.9\tex\latex\stix\ls1stixbb.fd
 File: ls1stixbb.fd 2015/04/17 v1.1.2-latex STIX blackboard LS1 font definitions
 
 )
 LaTeX Font Info:    Try loading font information for LS2+stixcal on input line 
-54.
+47.
 
 (C:\Users\meddwilb\AppData\Roaming\MiKTeX\2.9\tex\latex\stix\ls2stixcal.fd
 File: ls2stixcal.fd 2015/04/17 v1.1.2-latex STIX calligraphic LS2 font definiti
 ons
 )
-LaTeX Font Info:    Try loading font information for LS1+stixsf on input line 5
-4.
+LaTeX Font Info:    Try loading font information for LS1+stixsf on input line 4
+7.
 
 (C:\Users\meddwilb\AppData\Roaming\MiKTeX\2.9\tex\latex\stix\ls1stixsf.fd
 File: ls1stixsf.fd 2015/04/17 v1.1.2-latex STIX sans-serif LS1 font definitions
 
 )
-LaTeX Font Info:    Try loading font information for LS2+stixtt on input line 5
-4.
+LaTeX Font Info:    Try loading font information for LS2+stixtt on input line 4
+7.
 
 (C:\Users\meddwilb\AppData\Roaming\MiKTeX\2.9\tex\latex\stix\ls2stixtt.fd
 File: ls2stixtt.fd 2015/04/17 v1.1.2-latex STIX typewriter LS2 font definitions
 
 )
-LaTeX Font Info:    Try loading font information for U+msa on input line 54.
+LaTeX Font Info:    Try loading font information for U+msa on input line 47.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 54.
+LaTeX Font Info:    Try loading font information for U+msb on input line 47.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Font shape `T1/stix/bx/n' in size <8> not available
-(Font)              Font shape `T1/stix/b/n' tried instead on input line 54.
+(Font)              Font shape `T1/stix/b/n' tried instead on input line 47.
 LaTeX Font Info:    Font shape `T1/stix/bx/n' in size <10> not available
-(Font)              Font shape `T1/stix/b/n' tried instead on input line 54.
+(Font)              Font shape `T1/stix/b/n' tried instead on input line 47.
 
-Overfull \hbox (346.99213pt too wide) in paragraph at lines 54--54
+Overfull \hbox (346.99213pt too wide) in paragraph at lines 47--47
 [][] | || []|[][] 
  []
 
-LaTeX Font Info:    Calculating math sizes for size <10.03749> on input line 54
+LaTeX Font Info:    Calculating math sizes for size <10.03749> on input line 47
 .
-LaTeX Font Info:    Font shape `T1/stix/bx/n' in size <7.0262> not available
-(Font)              Font shape `T1/stix/b/n' tried instead on input line 58.
-
-Package natbib Warning: Citation `Sully2013' on page 1 undefined on input line 
-58.
-
-
-Package natbib Warning: Citation `Fay2006' on page 1 undefined on input line 58
-.
-
-
-Package natbib Warning: Citation `Teare2014' on page 1 undefined on input line 
-58.
-
-
-Package natbib Warning: Citation `Eldridge2016' on page 1 undefined on input li
-ne 58.
-
-
-Package natbib Warning: Citation `Avery2017' on page 1 undefined on input line 
-58.
-
-
-Package natbib Warning: Citation `Avery2017' on page 1 undefined on input line 
-58.
-
-
-Overfull \vbox (1.83847pt too high) has occurred while \output is active []
-
 
 Overfull \vbox (6.46347pt too high) has occurred while \output is active []
 
@@ -1095,329 +1067,82 @@ Overfull \vbox (6.46347pt too high) has occurred while \output is active []
 \openout3 = `Feasibility_test.pag'.
 
 ]
-
-Package natbib Warning: Citation `Lancaster2004' on page 2 undefined on input l
-ine 60.
-
-
-Package natbib Warning: Citation `Craig2008' on page 2 undefined on input line 
-60.
-
-
-Package natbib Warning: Citation `Arain2010' on page 2 undefined on input line 
-60.
-
-
-Package natbib Warning: Citation `Thabane2010' on page 2 undefined on input lin
-e 60.
-
-
-Package natbib Warning: Citation `Eldridge2016' on page 2 undefined on input li
-ne 60.
-
-
-Package natbib Warning: Citation `Eldridge2016a' on page 2 undefined on input l
-ine 60.
-
-
-Package natbib Warning: Citation `Lancaster2015' on page 2 undefined on input l
-ine 60.
-
-
-Package natbib Warning: Citation `Avery2017' on page 2 undefined on input line 
-60.
-
-
-Package natbib Warning: Citation `Cooper2018' on page 2 undefined on input line
- 60.
-
-
-Package natbib Warning: Citation `Eldridge2015' on page 2 undefined on input li
-ne 60.
-
-
-Package natbib Warning: Citation `Avery2017' on page 2 undefined on input line 
-60.
-
-
-Package natbib Warning: Citation `Eldridge2016a' on page 2 undefined on input l
-ine 60.
-
-
-Package natbib Warning: Citation `NIHR2017' on page 2 undefined on input line 6
-0.
-
-
-Package natbib Warning: Citation `Browne1995' on page 2 undefined on input line
- 64.
-
-
-Package natbib Warning: Citation `Julious2005' on page 2 undefined on input lin
-e 64.
-
-
-Package natbib Warning: Citation `Sim2012' on page 2 undefined on input line 64
-.
-
-
-Package natbib Warning: Citation `Teare2014' on page 2 undefined on input line 
-64.
-
-
-Package natbib Warning: Citation `Eldridge2015' on page 2 undefined on input li
-ne 64.
-
-
-Package natbib Warning: Citation `Whitehead2015' on page 2 undefined on input l
-ine 64.
-
-
-Package natbib Warning: Citation `Teare2014' on page 2 undefined on input line 
-64.
-
-
-Package natbib Warning: Citation `Eldridge2016a' on page 2 undefined on input l
-ine 68.
-
-
-Package natbib Warning: Citation `Lancaster2004' on page 2 undefined on input l
-ine 68.
-
-
-Package natbib Warning: Citation `Arain2010' on page 2 undefined on input line 
-68.
-
-
-Package natbib Warning: Citation `Thabane2010' on page 2 undefined on input lin
-e 68.
-
-
-Package natbib Warning: Citation `Eldridge2015' on page 2 undefined on input li
-ne 68.
-
-
-Package natbib Warning: Citation `Cocks2013' on page 2 undefined on input line 
-68.
-
-
-Package natbib Warning: Citation `Lee2014' on page 2 undefined on input line 68
-.
-
-
-Package natbib Warning: Citation `Senn2007' on page 2 undefined on input line 6
-8.
-
-
-Package natbib Warning: Citation `Chuang-Stein2007' on page 2 undefined on inpu
-t line 68.
-
-
-Package natbib Warning: Citation `Conaway1996' on page 2 undefined on input lin
-e 68.
-
-
-Package natbib Warning: Citation `Thall2008' on page 2 undefined on input line 
-68.
-
-
-Package natbib Warning: Citation `Wilson2015' on page 2 undefined on input line
- 68.
-
-LaTeX Font Info:    Font shape `T1/stix/bx/n' in size <10.03749> not available
-(Font)              Font shape `T1/stix/b/n' tried instead on input line 82.
-
-LaTeX Warning: Reference `sec:extension' on page 2 undefined on input line 82.
-
-
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 LaTeX Font Info:    Font shape `T1/stix/bx/n' in size <7> not available
-(Font)              Font shape `T1/stix/b/n' tried instead on input line 83.
+(Font)              Font shape `T1/stix/b/n' tried instead on input line 81.
  [2]
 LaTeX Font Info:    Font shape `T1/stix/bx/n' in size <12> not available
-(Font)              Font shape `T1/stix/b/n' tried instead on input line 105.
-
-[3]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [4]
-[5]
-
-LaTeX Warning: Reference `eqn:pilot_pow' on page 6 undefined on input line 200.
-
-
-
-Package natbib Warning: Citation `Deb2002' on page 6 undefined on input line 23
-8.
-
-
-Package natbib Warning: Citation `Mersmann2014' on page 6 undefined on input li
-ne 238.
-
-
-Package natbib Warning: Citation `Lancaster2004' on page 6 undefined on input l
-ine 251.
-
-[6]
-
-LaTeX Warning: Reference `fig:hyps' on page 7 undefined on input line 253.
-
-<./Figures/hyps.pdf, id=53, 397.485pt x 255.95625pt>
-File: ./Figures/hyps.pdf Graphic file (type pdf)
-<use ./Figures/hyps.pdf>
-Package pdftex.def Info: ./Figures/hyps.pdf  used on input line 257.
-(pdftex.def)             Requested size: 317.98842pt x 204.76526pt.
-
-LaTeX Warning: Reference `sec:ocs' on page 7 undefined on input line 262.
-
-
-LaTeX Warning: Reference `fig:ex_ocs' on page 7 undefined on input line 262.
-
-<./Figures/ex_ocs.pdf, id=54, 397.485pt x 255.95625pt>
-File: ./Figures/ex_ocs.pdf Graphic file (type pdf)
-<use ./Figures/ex_ocs.pdf>
-Package pdftex.def Info: ./Figures/ex_ocs.pdf  used on input line 266.
-(pdftex.def)             Requested size: 317.98842pt x 204.76526pt.
-
-LaTeX Warning: Reference `sec:ocs' on page 7 undefined on input line 277.
-
-[7 <./Figures/hyps.pdf>]
-
-LaTeX Warning: Reference `fig:ex_ocs' on page 8 undefined on input line 286.
-
-
-LaTeX Warning: Reference `fig:eval2' on page 8 undefined on input line 288.
-
-<./Figures/eval2.pdf, id=66, 397.485pt x 255.95625pt>
-File: ./Figures/eval2.pdf Graphic file (type pdf)
-<use ./Figures/eval2.pdf>
-Package pdftex.def Info: ./Figures/eval2.pdf  used on input line 292.
-(pdftex.def)             Requested size: 317.98842pt x 204.76526pt.
-
-LaTeX Warning: Reference `fig:eval' on page 8 undefined on input line 306.
-
-[8 <./Figures/ex_ocs.pdf>]
-<./Figures/eval.pdf, id=79, 511.9125pt x 454.69875pt>
-File: ./Figures/eval.pdf Graphic file (type pdf)
-<use ./Figures/eval.pdf>
-Package pdftex.def Info: ./Figures/eval.pdf  used on input line 310.
-(pdftex.def)             Requested size: 375.38722pt x 363.75949pt.
-
-
-LaTeX Warning: Reference `sec:power' on page 9 undefined on input line 317.
-
-[9 <./Figures/eval2.pdf>]
-
-LaTeX Warning: Reference `fig:unknown_var' on page 10 undefined on input line 3
-48.
-
-
-LaTeX Warning: Reference `sec:eval' on page 10 undefined on input line 348.
-
-[10 <./Figures/eval.pdf>]
-<./Figures/unknown_var.pdf, id=105, 397.485pt x 255.95625pt>
-File: ./Figures/unknown_var.pdf Graphic file (type pdf)
-<use ./Figures/unknown_var.pdf>
-Package pdftex.def Info: ./Figures/unknown_var.pdf  used on input line 352.
-(pdftex.def)             Requested size: 317.98842pt x 204.76526pt.
- [11 <./Figures/unknown_var.pdf>]
-
-Package natbib Warning: Citation `Avery2017' on page 12 undefined on input line
- 369.
-
-
-Package natbib Warning: Citation `Avery2017' on page 12 undefined on input line
- 369.
-
-
-Package natbib Warning: Citation `Craig2008' on page 12 undefined on input line
- 371.
-
-
-Package natbib Warning: Citation `Sargent2001' on page 12 undefined on input li
-ne 371.
-
-
-Package natbib Warning: Citation `Hong2007' on page 12 undefined on input line 
-371.
-
-
-LaTeX Warning: Reference `fig:adjust_n' on page 12 undefined on input line 377.
-
-
-
-LaTeX Warning: Reference `fig:adjust_n' on page 12 undefined on input line 377.
-
-
-[12]
-<./Figures/adjust_n.pdf, id=126, 397.485pt x 255.95625pt>
-File: ./Figures/adjust_n.pdf Graphic file (type pdf)
-<use ./Figures/adjust_n.pdf>
-Package pdftex.def Info: ./Figures/adjust_n.pdf  used on input line 381.
-(pdftex.def)             Requested size: 317.98842pt x 204.76526pt.
-
-
-Package natbib Warning: Citation `Landau2013' on page 13 undefined on input lin
-e 388.
-
-
-LaTeX Warning: Reference `eqn:MO_opt' on page 13 undefined on input line 388.
-
-
-LaTeX Warning: Reference `eqn:MO_opt' on page 13 undefined on input line 388.
-
-
-Package natbib Warning: Citation `Jones2001' on page 13 undefined on input line
- 388.
-
-[13 <./Figures/adjust_n.pdf>]
-No file Feasibility_test.bbl.
-
-LaTeX Warning: Reference `eqn:vars' on page 14 undefined on input line 411.
+(Font)              Font shape `T1/stix/b/n' tried instead on input line 87.
 
 
 Package amsmath Warning: Foreign command \atopwithdelims;
 (amsmath)                \frac or \genfrac should be used instead
-(amsmath)                 on input line 427.
+(amsmath)                 on input line 109.
 
-
-LaTeX Warning: Reference `eqn:int_group_mean' on page 14 undefined on input lin
-e 434.
-
+[3] [4] [5]
+<./Figures/hyps.pdf, id=120, 397.485pt x 255.95625pt>
+File: ./Figures/hyps.pdf Graphic file (type pdf)
+<use ./Figures/hyps.pdf>
+Package pdftex.def Info: ./Figures/hyps.pdf  used on input line 247.
+(pdftex.def)             Requested size: 317.98842pt x 204.76526pt.
+LaTeX Font Info:    Font shape `T1/stix/bx/n' in size <10.03749> not available
+(Font)              Font shape `T1/stix/b/n' tried instead on input line 248.
+<./Figures/ex_ocs.pdf, id=123, 397.485pt x 255.95625pt>
+File: ./Figures/ex_ocs.pdf Graphic file (type pdf)
+<use ./Figures/ex_ocs.pdf>
+Package pdftex.def Info: ./Figures/ex_ocs.pdf  used on input line 256.
+(pdftex.def)             Requested size: 317.98842pt x 204.76526pt.
+<./Figures/eval2.pdf, id=126, 397.485pt x 255.95625pt>
+File: ./Figures/eval2.pdf Graphic file (type pdf)
+<use ./Figures/eval2.pdf>
+Package pdftex.def Info: ./Figures/eval2.pdf  used on input line 268.
+(pdftex.def)             Requested size: 317.98842pt x 204.76526pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [14]
+ [6 <./Figures/hyps.pdf>] [7 <./Figures/ex_ocs.pdf> <./Figures/eval2.pdf>]
+<./Figures/eval.pdf, id=158, 511.9125pt x 454.69875pt>
+File: ./Figures/eval.pdf Graphic file (type pdf)
+<use ./Figures/eval.pdf>
+Package pdftex.def Info: ./Figures/eval.pdf  used on input line 286.
+(pdftex.def)             Requested size: 375.38722pt x 363.75949pt.
 
-Package natbib Warning: There were undefined citations.
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 460.
-[15]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 460.
+ [8 <./Figures/eval.pdf>]
+<./Figures/unknown_var.pdf, id=175, 397.485pt x 255.95625pt>
+File: ./Figures/unknown_var.pdf Graphic file (type pdf)
+<use ./Figures/unknown_var.pdf>
+Package pdftex.def Info: ./Figures/unknown_var.pdf  used on input line 328.
+(pdftex.def)             Requested size: 317.98842pt x 204.76526pt.
+ [9] [10 <./Figures/unknown_var.pdf>]
+<./Figures/adjust_n.pdf, id=202, 397.485pt x 255.95625pt>
+File: ./Figures/adjust_n.pdf Graphic file (type pdf)
+<use ./Figures/adjust_n.pdf>
+Package pdftex.def Info: ./Figures/adjust_n.pdf  used on input line 357.
+(pdftex.def)             Requested size: 317.98842pt x 204.76526pt.
+ [11] [12 <./Figures/adjust_n.pdf>] (Feasibility_test.bbl [13]) [14] [15]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 451.
+ [16]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 451.
  (Feasibility_test.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 460.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 460.
-
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 460.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 451.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 451.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 451.
  )
 (\end occurred inside a group at level 1)
 
-### semi simple group (level 1) entered at line 403 (\begingroup)
+### semi simple group (level 1) entered at line 379 (\begingroup)
 ### bottom level 
 Here is how much of TeX's memory you used:
- 14600 strings out of 492970
- 204851 string characters out of 3135846
- 311042 words of memory out of 3000000
- 18147 multiletter control sequences out of 15000+200000
- 104242 words of font info for 134 fonts, out of 3000000 for 9000
+ 14725 strings out of 492970
+ 207143 string characters out of 3135846
+ 311734 words of memory out of 3000000
+ 18238 multiletter control sequences out of 15000+200000
+ 101513 words of font info for 133 fonts, out of 3000000 for 9000
  1167 hyphenation exceptions out of 8191
- 43i,12n,40p,2358b,381s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 43i,12n,40p,2358b,491s stack positions out of 5000i,500n,10000p,200000b,50000s
 {C:/Users/meddwilb/AppData/Roaming/MiKTeX/2.9/fonts/enc/dvips/s
 tix/stix-t1.enc}<C:/Users/meddwilb/AppData/Roaming/MiKTeX/2.9/fonts/type1/publi
 c/stix/STIXGeneral-Bold.pfb><C:/Users/meddwilb/AppData/Roaming/MiKTeX/2.9/fonts
@@ -1428,10 +1153,11 @@ ilb/AppData/Roaming/MiKTeX/2.9/fonts/type1/public/stix/stix-mathcal.pfb><C:/Use
 rs/meddwilb/AppData/Roaming/MiKTeX/2.9/fonts/type1/public/stix/stix-mathex.pfb>
 <C:/Users/meddwilb/AppData/Roaming/MiKTeX/2.9/fonts/type1/public/stix/stix-math
 it.pfb><C:/Users/meddwilb/AppData/Roaming/MiKTeX/2.9/fonts/type1/public/stix/st
-ix-mathrm.pfb>
-Output written on Feasibility_test.pdf (15 pages, 283683 bytes).
+ix-mathrm-bold.pfb><C:/Users/meddwilb/AppData/Roaming/MiKTeX/2.9/fonts/type1/pu
+blic/stix/stix-mathrm.pfb>
+Output written on Feasibility_test.pdf (16 pages, 328511 bytes).
 PDF statistics:
- 248 PDF objects out of 1000 (max. 8388607)
- 49 named destinations out of 1000 (max. 500000)
- 189 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 394 PDF objects out of 1000 (max. 8388607)
+ 79 named destinations out of 1000 (max. 500000)
+ 205 words of extra memory for PDF output out of 10000 (max. 10000000)
 
