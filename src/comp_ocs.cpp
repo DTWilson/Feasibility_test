@@ -14,36 +14,6 @@ using boost::math::negative_binomial_distribution;
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-NumericVector get_comp_ocs_cpp(double c, int n, NumericMatrix prm, double mu)
-{
-  int rows = prm.nrow();
-  NumericVector results(rows);
-  for(int i=0; i<rows; i++){
-    double total = 0;
-    NumericVector pr = prm(i, _);
-    // pr = (p_r, p_f, p_a|f, p_a!f_frac)
-    double sd = 1;
-    double p_a, p_f, p_c = 0;
-    for(int a=0; a<=n; a++){
-      p_a = R::dbinom(a, n, pr(2), 0); 
-      for(int f=0; f<=2*n; f++){
-        p_f = R::dbinom(f, 2*n, pr(1), 0);
-        int x = floor(a*a*f/(n*n*c) - 2*n);
-        p_c = 0;
-        if(x > 0){
-          p_c = R::pnbinom(x, 2*n, pr(0), 1, 0);
-        }
-        total = total + p_a*p_f*p_c;
-      }
-    }
-    results(i) = total;
-  }
-  return results;
-}
-
-
-
-// [[Rcpp::export]]
 NumericVector get_comp_ocs_cpp3(NumericMatrix prm, double n, double mu, int n_e, int n_t)
 {
   // Here, calculating power of the main trial as our statistic
@@ -65,6 +35,9 @@ NumericVector get_comp_ocs_cpp3(NumericMatrix prm, double n, double mu, int n_e,
     // Rcout << pr << std::endl;
     // pr = (p_r, p_a|f, p_f)
     
+    // Calculate and store the expected total sample size of 
+    // the main trial based on the observed s in the pilot,
+    // where s is the number of non-consentors
     double r_max = R::qnbinom(0.999, 2*n, pr(0), 1, 0);
     NumericVector exp_n(r_max+1); 
     NumericVector p_rs(r_max+1); 
@@ -94,7 +67,7 @@ NumericVector get_comp_ocs_cpp3(NumericMatrix prm, double n, double mu, int n_e,
           p_r = p_rs(s); 
           double r_est = (2*n/(2*n+s));
           
-          double stat = mu*a_est*sqrt(exp_n(s)*f_est)/sqrt((2 + mu*mu*a_est*(1-a_est)));
+          double stat = mu*a_est*sqrt(exp_n(s)*f_est)/sqrt((4 + 2*mu*mu*a_est*(1-a_est)));
           
           //if(r_est*f_est*a_est*a_est > c){
           if(stat > c){
@@ -301,12 +274,15 @@ NumericVector get_ocs_var_cpp(double c, double n, NumericMatrix prm, double mu, 
         f_est = f/(2*n);
         
         for(int s=r_max; s>=0; s--){
-          
-          p_r = p_rs(s); 
+
+          p_r = p_rs(s);
           r_est = (2*n/(2*n+s));
-          
-          var_crit = (mu*mu*a_est*a_est*f_est*exp_n(s) - mu*mu*a_est*(1-a_est)*c*c)/(2*c*c);
+
+          var_crit = (mu*mu*a_est*a_est*f_est*exp_n(s) - 2*mu*mu*a_est*(1-a_est)*c*c)/(4*c*c);
           p_var = R::pchisq(var_crit*(f-1)/pow(pr(3), 2.0), f-1, 1, 0);
+
+          //Rcout << r_est << ", " << a_est << ", " << f_est << ", " << var_crit << std::endl;
+          //Rcout << p_r << ", " << p_a << ", " << p_f << ", " << p_var << std::endl;
 
           total = total + p_var*p_r*p_a*p_f;
           }
@@ -319,30 +295,53 @@ NumericVector get_ocs_var_cpp(double c, double n, NumericMatrix prm, double mu, 
 
 
 // [[Rcpp::export]]
-double MC_cpp(NumericMatrix df, NumericVector pr, double c, double n, double mu, double n_e, double n_t, NumericVector exp_n)
+double MC_cpp(double MC, double c, NumericVector pr, double n, double mu, int n_e, int n_t)
 {
-  // pr = (phi_r, phi_a, phi_f, sd)
-  int rows = df.nrow();
-
-  double total = 0; 
-  for(int i=0; i<rows; i++){
-    NumericVector x = df(i, _);
-    // (a, f, r_, sd)
-    double a_est = x(0);
-    double f_est = x(1);
-    int s = x(2);
-    double sd = x(3);
+  // pr = (p_r, p_a|f, p_f, sd)
+  
+  NumericVector n_r(n_t);
+  for(int i=0; i<n_t; i++){
+    n_r(i) = i;
+  }
+  
+  double r_max = R::qnbinom(0.999, 2*n, pr(0), 1, 0);
+  NumericVector exp_n(r_max+1); 
+  for(int s=r_max; s>=0; s--){
+    double r_est = 2*n/(s+2*n);
     
-    double stat = mu*a_est*sqrt(exp_n(s)*f_est)/sqrt(2*pow(sd, 2.0) + mu*mu*a_est*(1-a_est));
+    double x = 0;
+    for(int m=0; m<n_t; m++){
+      x = x + R::dbinom(n_r(m), n_e, r_est, 0)*n_r(m);
+    }
+    
+    exp_n(s) = x + n_t*(1 - R::pbinom(n_t-1, n_e, r_est, 1, 0));
+  }
+ 
+  double sd = 1;
+  
+  NumericVector a = Rcpp::rbinom(MC, n, pr(1));
+  NumericVector f = Rcpp::rbinom(MC, 2*n, pr(2));
+  NumericVector s = clamp(0, Rcpp::rnbinom(MC, 2*n, pr(0)), r_max);
+  
+  double a_est, f_est;
+  
+  double total = 0;
+  
+  for(int i=0; i < MC; i++){
+    a_est = a(i)/n;
+    f_est = f(i)/(2*n);
+    
+    double stat = mu*a_est*sqrt(exp_n(s(i))*f_est)/sqrt((4 + 2*mu*mu*a_est*(1-a_est)));
+    
+    //Rcout << stat << std::endl;
     
     if(stat > c){
       total = total + 1;
-      //Rcout << stat << std::endl;
     }
   }
-  return total/rows;
-}
 
+  return total/MC;
+}
 
 
 

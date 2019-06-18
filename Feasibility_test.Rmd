@@ -1,5 +1,5 @@
 ---
-title: "Testing feasibility - recruitment, adherence and data collection"
+title: "A hypothesis test of feasibility for pilot trials assessing recruitment, follow-up and adherence rates"
 author: "D. T. Wilson"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
@@ -14,61 +14,23 @@ require(RColorBrewer)
 require(rgenoud)
 require(randtoolbox)
 require(gganimate)
+require(Rcpp)
 cols <- brewer.pal(8, "Dark2")
-```
-
-## Re-formulation
-
-Rather than defining hypotheses wrt power for a fixed design, can we look at sample size required for a fixed power?
-
-```{r}
-mu <- 0.3
-n_max <- 500; n_min <- 312
-
-get_fup <- function(phi, nm, mu, n_e, n_t)
-{
-  # For some recruitment and adherence rate, find the follow-up rate which will lie on
-  # the boundary of the hypothesis defined by xi
-  p_r <- phi[1]; p_a <- phi[2]; sd <- 1
-  exp_n <- get_exp_N(n_e, n_t=nm, p_r)
-
-  (2*sd^2 + mu^2 *p_a*(1-p_a))*(qnorm(0.9) + qnorm(0.975))/((p_a*mu)^2*exp_n)
-}
-
-# Null
-df <- expand.grid(p_r=seq(0,1,0.01), p_a=seq(0,1,0.01))
-df$p_f <- apply(df, 1, get_fup, nm=n_max, mu=mu, n_e = 800, n_t =235)
-sub <- df
-
-# Alternative
-df <- expand.grid(p_r=seq(0,1,0.01), p_a=seq(0,1,0.01))
-df$p_f <- apply(df, 1, get_fup, nm=n_min, mu=mu, n_e = 800, n_t =235)
-sub_a <- df
-
-# Combine for plotting
-sub$h <- "Null"
-sub_a$h <- "Alternative"
-sub <- rbind(sub, sub_a)
-# Discard any infeasible points
-sub <- sub[sub$p_f <= 1,]
-
-ggplot(sub, aes(p_r, p_a, z=p_f, colour=p_f)) +
-  geom_contour(aes(colour=..level..)) +
-  theme_minimal() + xlab("Recruitment") + ylab("Adherence") + 
-  guides(colour = guide_legend(title = "Follow-up")) +
-  facet_grid(. ~ factor(h, levels=c("Null", "Alternative"))) +
-  theme(panel.spacing = unit(1, "lines"))
 ```
 
 ## Introduction
 
-## Hypotheses
+This RMarkdown document contains the R code which generates the results and figures included in the manuscript of the same name, plus supplementary material.
+
+## Example
+
+### Hypotheses
 
 We first find the threshold values $x_0, x_1$ which correspond to obtaining 60 and 80% power and set our mean difference, $\mu$.
 
 ```{r}
 mu <- 0.3
-p0 <- 0.6; p1 <- 0.8
+p0 <- 0.65; p1 <- 0.8
 
 x0 <- (qnorm(p0) + qnorm(0.975))
 x1 <- (qnorm(p1) + qnorm(0.975))
@@ -90,18 +52,18 @@ get_fup <- function(phi, xi, mu, n_e, n_t)
   # the boundary of the hypothesis defined by xi
   p_r <- phi[1]; p_a <- phi[2]; sd <- 1
   exp_n <- get_exp_N(n_e, n_t, p_r)
-  (2*sd^2 + mu^2 *p_a*(1-p_a))*xi^2/((p_a*mu)^2*exp_n)
+  (4*sd^2 + 2*mu^2 *p_a*(1-p_a))*xi^2/((p_a*mu)^2*exp_n)
 
 }
 
 # Null
 df <- expand.grid(p_r=seq(0,1,0.01), p_a=seq(0,1,0.01))
-df$p_f <- apply(df, 1, get_fup, xi=x0, mu=mu, n_e = 500, n_t =235)
+df$p_f <- apply(df, 1, get_fup, xi=x0, mu=mu, n_e = 1000, n_t =514)
 sub <- df
 
 # Alternative
 df <- expand.grid(p_r=seq(0,1,0.01), p_a=seq(0,1,0.01))
-df$p_f <- apply(df, 1, get_fup, xi=x1, mu=mu, n_e = 500, n_t =235)
+df$p_f <- apply(df, 1, get_fup, xi=x1, mu=mu, n_e = 1000, n_t =514)
 sub_a <- df
 
 # Combine for plotting
@@ -112,7 +74,7 @@ sub <- rbind(sub, sub_a)
 sub <- sub[sub$p_f <= 1,]
 
 ggplot(sub, aes(p_r, p_a, z=p_f, colour=p_f)) +
-  geom_contour(aes(colour=..level..)) +
+  geom_contour(aes(colour=..level..), breaks=c(0.5,0.6,0.7,0.8,0.9,1)) +
   theme_minimal() + xlab("Recruitment") + ylab("Adherence") + 
   guides(colour = guide_legend(title = "Follow-up")) +
   facet_grid(. ~ factor(h, levels=c("Null", "Alternative"))) +
@@ -122,7 +84,7 @@ ggsave("./paper/figures/hyps.pdf", height=9, width=14, units="cm")
 ggsave("./paper/figures/hyps.eps", height=9, width=14, units="cm", device = cairo_ps())
 ```
 
-## Local error rates
+### Local error rates
 
 Having defined our hypotheses, we can now calculate local type I and II error rates for a proposed pilot trial with sample size $n$, critical value $c$, and at two specific points in the null and alternative hypotheses.
 
@@ -148,10 +110,10 @@ get_ocs <- function(y, n, x0, x1, mu=0.3, n_e, n_t)
 }
 
 # For example,
-get_ocs(c(2.4, 0.64, 0.73, 0.8769883, 0.96, 1, 0.7422108), 30, x0, x1, 0.3, 500, 235)
+get_ocs(c(2.4, 0.64, 0.73, 0.8769883, 0.96, 1, 0.7422108), 30, x0, x1, 0.3, 1000, 514) 
 ```
 
-## Global error rate curves
+### Global error rates
 
 To solve the multi-objective optimisation problem described in the paper, we need to implment a constriant function to limit the search to our null and alternative hypotheses. The function returns a value for the null (alternative) point, being negative if the point is not within the null (alternative) hypothesis.
 
@@ -162,43 +124,88 @@ get_constr <- function(y, n, x0, x1, mu=0.3, n_e, n_t)
   
   p_r <- y[2]; p_a <- y[3]; p_f <- y[4]; 
   exp_n <- get_exp_N(n_e, n_t, p_r)
-  con_a <-  p_a*mu*sqrt(p_f*exp_n)/sqrt(2*sd^2 + mu^2 * p_a*(1-p_a))
+  con_a <-  p_a*mu*sqrt(p_f*exp_n)/sqrt(4*sd^2 + 2*mu^2 * p_a*(1-p_a))
 
   p_r <- y[5]; p_a <- y[6]; p_f <- y[7]; 
   exp_n <- get_exp_N(n_e, n_t, p_r)
-  con_b <-  p_a*mu*sqrt(p_f*exp_n)/sqrt(2*sd^2 + mu^2 * p_a*(1-p_a))
+  con_b <-  p_a*mu*sqrt(p_f*exp_n)/sqrt(4*sd^2 + 2*mu^2 * p_a*(1-p_a))
 
   return(c(x0-con_a, con_b-x1))
 }
 
 # For example, change the alternative point from above so it is outside the alternative hypothesis
-get_constr(c(2.4, 0.64, 0.73, 0.8769883, 0.96, 0.9, 0.7422108), 30, x0, x1, 0.3, 500, 235)
+get_constr(c(2.4, 0.64, 0.73, 0.8769883, 0.96, 0.9, 0.7422108), 30, x0, x1, 0.3, 1000, 514)
 ```
 
 We can now sole the problem using the NSGA-II algrothim from the "mco" package. Note that while there is an option to use a fully vectorised version (i.e. with the objective and constrained functions implemented in c++), this did not lead to any efficiency gain and so we have used R functions for greater transparancy.
 
 ```{r, eval = F}
+
+ptm <- proc.time()
+
 opt <- nsga2(fn=get_ocs, 7, 2, 
-             n=30, x0=x0, x1=x1, mu=0.3, n_e=500, n_t=234,
+             n=50, x0=qnorm(0.65) + qnorm(0.975), x1=x1, mu=0.3, n_e=1000, n_t=514,
              lower.bounds = c(2, rep(0.1,6)), upper.bounds = c(3, rep(1,6)),
-             generations = 1:100, popsize = 100,
+             generations = 1:200, popsize = 100,
              constraints = get_constr, cdim=2)
 
-saveRDS(opt, "opt.Rda")
+proc.time() - ptm
+
+#   user  system elapsed 
+# 595.55    0.75  602.27 
+
+#saveRDS(opt, "./data/opt.Rda")
 ```
 
 The algorithm returns a set of `popsize` solutions, each containing a critical value, a point in the null, and a point in the alternative. Each solution has a type I and II error, which we can plot to visualise the error rates available as we vary the critical value but keep the pilot sample size fixed.
 
 ```{r}
-opt <- readRDS("opt.Rda")
+opt <- readRDS("./data/opt.Rda")
 
-df <- data.frame(a=-opt[[100]]$value[,1], b=-opt[[100]]$value[,2])
-df2 <- data.frame(a=-opt[[80]]$value[,1], b=-opt[[80]]$value[,2])
+df <- data.frame(a=-opt[[200]]$value[,1], b=-opt[[200]]$value[,2])
+df2 <- data.frame(a=-opt[[180]]$value[,1], b=-opt[[180]]$value[,2])
 
 ggplot(df, aes(a, b)) + geom_point() + geom_line() +
   geom_line(data=df2, colour="red") +
   xlab(expression(alpha)) + ylab(expression(beta)) +
-  theme_minimal()
+  theme_minimal() + 
+  scale_y_continuous(breaks = seq(0,1,0.2)) + scale_x_continuous(breaks = seq(0,1,0.2)) +
+  coord_fixed()#+ 
+  # point evaluated with c=2.6 and OR=1
+  #geom_point(data=data.frame(a=0.1285390, b=0.1496154), colour="green") +
+  # point evaluated with c=2.6 and OR=5
+  #geom_point(data=data.frame(a=0.1285390, b=0.3452193), colour="blue")
+```
+
+Try a nested optimisation:
+
+```{r, eval=T}
+get_oc2 <- function(phi, n, c, xi, a=TRUE, mu=0.3, n_e, n_t)
+{
+  p_r <- phi[1]; p_a <- phi[2]; sd <- 1
+  if(any(c(p_r,p_a) < 0) | any(c(p_r,p_a) > 1) ){return(1000)}
+  exp_n <- get_exp_N(n_e, n_t, p_r)
+  p_f <- (4*sd^2 + 2*mu^2 *p_a*(1-p_a))*xi^2/((p_a*mu)^2*exp_n)
+  if(any(c(p_r,p_a,p_f) < 0) | any(c(p_r,p_a,p_f) > 1) ){
+    1000
+  } else {
+    (a*-1 + !a*1)*get_comp_ocs_cpp3(matrix(c(c, p_r, p_a, p_f, sd), ncol=5), n, mu, n_e, n_t)
+  }
+}
+
+get_ocs2 <- function(c, n, x0, x1, mu=0.3, n_e, n_t)
+{
+  opt_a <- optim(c(0.9,0.9), fn=get_oc2,
+                 c=c, n=n, xi=x0, a=T, mu=mu, n_e=n_e, n_t=n_t)
+  
+  opt_b <- optim(c(0.9,0.9), fn=get_oc2,
+                 c=c, n=n, xi=x1, a=F, mu=mu, n_e=n_e, n_t=n_t)
+  
+  c(-opt_a$value, 1-opt_b$value)
+}
+
+get_ocs2(2.5, n=30, x0, x1, mu=0.3, n_e=1000, n_t=514)
+  
 ```
 
 The function does not by default report any information which could be used to assess convergence. We can do so by extracting the solution set obtained at each iteration in the final portion of the search (say, the last quarter) and for each set measuring its corresponding dominated hypervolume. If the algorithm has converged, this measure should platue towards the end of the search.
@@ -212,7 +219,68 @@ for(i in 1:length(opt)){
 plot(DHs)
 ```
 
-## Comparison
+It may be that error rates are being maximised at the same points in the null and alternative hypotheses for different values of $c$. When we plot the points, we see that this is not the case; error rates are maximised at a variety of locations in the hypotheses.
+
+```{r}
+ps <- data.frame(rbind(opt[[200]]$par[,2:4], opt[[200]]$par[,5:7]))
+names(ps) <- c("p_r", "p_a", "p_f")
+ps$h <- c(rep("Type I", 100), rep("Type II", 100))
+
+ggplot(ps, aes(p_r, p_a, colour=p_f)) + geom_point() +
+  facet_grid(. ~ h) +
+  labs(x=expression(p[r]), y=expression(p[a]), colour=expression(p[f])) +
+  theme_minimal()
+```
+
+
+### Alternative perspective
+
+Rather than keeping the hypotheses fixed and looking for the error rates which can be obtained, we could instead constrain the type II error at some desired value and then look at how much type I error we will get for different hypotheses. Specifically, we can find the $c$ which will give a desired type II in the pilot for a fixed alternative defined by $p_1$, and then find the type I which results from a range of $p_0$.
+
+```{r, eval=F}
+# Manually find a c that gives approx 90% pilot power
+psoptim(rep(NA,2), fn=get_oc2,
+                 c=2.46, n=30, xi=x1, a=F, mu=0.3, n_e=1000, n_t=514,
+        control=list(trace=1, reltol = 0.01, maxit = 200))
+cs <- c(2.46, 2.53, 2.61)
+
+# For a range of p_0 and n_p, find the type I error
+df <- NULL
+prev <- c(0.9, 0.9)
+for(n_p in c(30, 50, 100)){
+  for(p0 in seq(0.5, 0.8, 0.01)){
+    c <- cs[which(c(30, 50, 100) == n_p)]
+    x0 <- qnorm(p0) + qnorm(0.975)
+    opt <- psoptim(rep(NA,2), fn=get_oc2,
+                 c=c, n=n_p, xi=x0, a=T, mu=0.3, n_e=1000, n_t=514,
+                 control=list(trace=0, reltol = 0.01, maxit = 200))
+    tI <- -opt$value
+    print(tI)
+    df <- rbind(df, c(n_p, p0, tI))
+  }
+}
+
+df <- data.frame(n_p = df[,1], p0 = df[,2], a = df[,3])
+
+saveRDS(df, "./data/alt_data.Rda")
+```
+
+```{r}
+df <- readRDS("./data/alt_data.Rda")
+
+ggplot(df, aes(p0, a, colour=as.factor(n_p))) + geom_line() +
+  scale_color_manual(name=expression(n[p]), values=cols) +
+  xlab(expression(p[0])) + ylab(expression(alpha)) +
+  theme_minimal()
+
+ggsave("./paper/figures/alt.pdf", height=9, width=14, units="cm")
+ggsave("./paper/figures/alt.eps", height=9, width=14, units="cm", device = cairo_ps())
+```
+
+
+## Evaluation
+
+### Comparator
 
 We can comapre the error rate curve of the proposed method against that of the current approach, where the three parameter estimates are compared against seperate progression criteria thresholds and a "go" decision is made only if they are all exceeded.
 
@@ -222,7 +290,7 @@ get_oc_pc <- function(phi, cs, n, xi, tI, s, f, a, n_e, n_t)
   p_r <- phi[1]; p_a <- phi[2]; sd <- 1
   if(any(c(p_r,p_a) < 0) | any(c(p_r,p_a) > 1) ){return(1000)}
   exp_n <- get_exp_N(n_e, n_t, p_r)
-  p_f <- (2*sd^2 + mu^2 *p_a*(1-p_a))*xi^2/((p_a*mu)^2*exp_n)
+  p_f <- (4*sd^2 + 2*mu^2 *p_a*(1-p_a))*xi^2/((p_a*mu)^2*exp_n)
   if(any(c(p_r,p_a,p_f) < 0) | any(c(p_r,p_a,p_f) > 1) ){
     1000
   } else {
@@ -243,28 +311,28 @@ get_ocs_pc <- function(cs, n, x0, x1, n_e, n_t)
   f <- cs[3]*2*n
 
   # Locally optimise 
-  opt_a <- optim(c(0.9,0.9), fn=get_oc_pc,# lower = c(0.1,0.1), upper=c(1,1),
-                 cs=cs, n=n, xi=x0, tI=T, s=s, f=f, a=a, n_e=n_e, n_t=n_t)#, method="L-BFGS-B")
+  opt_a <- optim(c(0.9,0.9), fn=get_oc_pc,
+                 cs=cs, n=n, xi=x0, tI=T, s=s, f=f, a=a, n_e=n_e, n_t=n_t)
     
-  opt_b <- optim(c(0.9,0.9), fn=get_oc_pc,# lower = c(0.1,0.1), upper=c(1,1),
-                 cs=cs, n=n, xi=x1, tI=F, s=s, f=f, a=a, n_e=n_e, n_t=n_t)#, method="L-BFGS-B")
+  opt_b <- optim(c(0.9,0.9), fn=get_oc_pc,
+                 cs=cs, n=n, xi=x1, tI=F, s=s, f=f, a=a, n_e=n_e, n_t=n_t)
 
   c(-opt_a$value, 1-opt_b$value)
 }
 
 # For example,
-get_ocs_pc(rep(0.5, 3), 30, x0, x1, n_e=500, n_t=235)
+get_ocs_pc(rep(0.5, 3), 30, x0, x1, n_e=1000, n_t=514)
 ```
 We can search over all possible progression criteria and plot the best available error rates. As a check that the optimisation algorithm is working well, we also evaluate a $10^4$ size space-filling design (specifically, a Sobol sequence) and plot the results.
 
 ```{r, eval=F}
-opt <- nsga2(get_ocs_pc, 3, 2, n=30, x0=x0, x1=x1, n_e=500, n_t=235,
+opt <- nsga2(get_ocs_pc, 3, 2, n=30, x0=x0, x1=x1, n_e=1000, n_t=514,
              lower.bounds = c(0, 0, 0), upper.bounds = c(1, 1, 1),
               popsize = 100, generations = 100)
 # saveRDS(opt, "./data/opt_pc.Rda")
 
 to_eval <- sobol(10000,3)
-ocs <- apply(to_eval, 1, get_ocs_pc, n=30, x0=x0, x1=x1, n_e=500, n_t=235)
+ocs <- apply(to_eval, 1, get_ocs_pc, n=30, x0=x0, x1=x1, n_e=1000, n_t=514)
 # saveRDS(ocs, "./data/sobol_pc.Rda")
 ```
 
@@ -287,7 +355,7 @@ p <- ggplot(df, aes(a,b)) + geom_point() + theme_minimal() +
 animate(p, nframes = 2, fps=0.8)
 ```
 
-## Evaluation
+### Results
 
 We find the OC curves produced by the proposed method and for the comparator for a range of null hypothesis power parameters and a range of total sample sizes of the main trial. FOr each scenario, we consider pilot sample sizes of n = 30, 50 and 100.
 
@@ -301,25 +369,28 @@ eval_scenario <- function(null_pow, n_t, n)
   x1 <- qnorm(p1) + qnorm(0.975)
   
   opt <- nsga2(fn=get_ocs, 7, 2, 
-             n=n, x0=x0, x1=x1, mu=0.3, n_e=500, n_t=n_t,
+             n=n, x0=x0, x1=x1, mu=0.3, n_e=1000, n_t=n_t,
              lower.bounds = c(2, rep(0.1,6)), upper.bounds = c(3, rep(1,6)),
-             generations = 100, popsize = 100,
+             generations = 200, popsize = 100,
              constraints = get_constr, cdim=2)
   
-  opt_comp <- nsga2(get_ocs_pc, 3, 2, n=n, x0=x0, x1=x1, n_e=500, n_t=n_t,
+  opt_comp <- nsga2(get_ocs_pc, 3, 2, n=n, x0=x0, x1=x1, n_e=1000, n_t=n_t,
              lower.bounds = c(0, 0, 0), upper.bounds = c(1, 1, 1),
-              popsize = 100, generations = 100)
+              popsize = 100, generations = 200)
   
   df <- data.frame(a=c(opt$value[,1], opt_comp$value[,1]),
                    b=c(opt$value[,2], opt_comp$value[,2]),
                    t=c(rep("FT", 100), rep("PC", 100)))
   df$n <- n; df$n_t <- n_t; df$null_pow <- null_pow
   
+  df <- cbind(df, rbind(cbind(opt$par[,1], rep(0,100), rep(0,100)), opt_comp$par))
+  names(df)[7:9] <- c("c_1", "c_2", "c_3")
+  
   return(df)
 }
 
 df <- NULL
-for(i in c(234, 234*1.1, 234*1.2)){
+for(i in c(468, 514, 562)){
   for(j in c(0.6, 0.65, 0.7)){
     for(k in c(30, 50, 100)){
           df <- rbind(df, eval_scenario(j, i, k))
@@ -327,7 +398,7 @@ for(i in c(234, 234*1.1, 234*1.2)){
   }
 }
 
-#saveRDS(df, "./data/eval.Rda")
+saveRDS(df, "./data/eval.Rda")
 ```
 
 Plot the results
@@ -338,7 +409,7 @@ names(df)[4] <- "np"
 df$a <- ifelse(df$t=="FT", -df$a, df$a)
 df$b <- ifelse(df$t=="FT", -df$b, df$b)
 
-labels_nt <- c("234" = "234", "257.4" = "257", "280.8" = "281")
+labels_nt <- c("468" = "468",  "514" = "514", "562" = "562")
 
 ggplot(df[df$t == "FT" | df$np == 50,], aes(a, b, colour=as.factor(np), linetype=t)) + geom_line() + 
   facet_grid(n_t ~ null_pow, labeller = labeller(n_t = labels_nt)) +
@@ -358,9 +429,9 @@ Pick out some specific numbers for comparison.
 df[df$n_t == 234 & df$a > 0.08 & df$a < 0.12 & df$t == "FT" & df$np == 30,]
 ```
 
-Look at one example graph in more detail.
+Look at one scenario in more detail.
 ```{r}
-sub <- df[df$null_pow == 0.65 & df$n_t == "257.4" & df$np == 50,]
+sub <- df[df$null_pow == 0.65 & df$n_t == 514,]
 
 ggplot(sub, aes(a,b,colour=as.factor(np), linetype=t)) + geom_step() + #geom_point() +
   theme_minimal() + coord_fixed() +
@@ -374,328 +445,67 @@ ggsave("./paper/figures/ex_ocs.pdf", height=9, width=14, units="cm")
 ggsave("./paper/figures/ex_ocs.eps", height=9, width=14, units="cm", device = cairo_ps())
 ```
 
-## Example
-
-To do - worked example relating to a real pilot trial.
-
-## Extensions
-
-### Correlated follow-up and adherence
-
-### Unknown variance
-
-`r knitr::knit_exit()`
-
-
-
-
+And look at the corresponding solution spaces:
 ```{r}
-# Superceeded
-get_oc <- function(phi, n, cc, xi, a=TRUE, mu=0.3, n_e, n_t, M)
-{
-  p_r <- phi[1]; p_a <- phi[2]; p_f <- phi[3]; sd <- 1
-  exp_n <- get_exp_N(n_e, n_t, p_r)
-  con <-  p_a*mu*sqrt(p_f*exp_n)/sqrt(2*sd^2 + mu^2 * p_a*(1-p_a))
-  (a*-1 + !a*1)*get_comp_ocs_cpp3(cc, n, matrix(c(p_r, p_a, p_f, sd), ncol=4), mu, n_e, n_t) + 
-  M*(con-xi)^2
-  #a*M*(max(0, con-xi)^2) + (!a)*M*(max(0, xi-con)^2) 
-  
-  #sd <- sqrt(p_f*(p_a*mu)^2*exp_n/(2*xi^2) - mu^2 *p_a*(1-p_a)/2)
-  #if(!is.na(sd)){
-  #  (a*-1 + !a*1)*get_comp_ocs_cpp3(cc, n, matrix(c(p_r, p_a, p_f, sd), ncol=4), mu, n_e, n_t) + M*(1-sd)^2
-  #} else {
-  #  10000
-  #}
-} 
-
-get_ocs <- function(c, n, x0, x1, mu, n_e, n_t, Ms, des_a=rep(0.1,3), des_b=rep(0.1,3), print.level=0)
-{
-  
-  # Type I
-  for(m in Ms){
-    opt_a <- optim(des_a, fn=get_oc, lower = c(0.1,0.1,0.1), upper=c(1,1,1),
-                  cc=c, n=n, xi=x0, a=T, mu=mu, n_e=n_e, n_t=n_t, method="L-BFGS-B", M=m)
-    if(print.level == 1) print(opt_a$par)
-    des_a <- opt_a$par
-  }
-
-  # Type II
-  for(m in Ms){
-    opt_b <- optim(des_b, fn=get_oc, lower = c(0.1,0.1,0.1), upper=c(1,1,1),
-                  cc=c, n=n, xi=x1, a=F, mu=mu, n_e=n_e, n_t=n_t, method="L-BFGS-B", M=m)
-    if(print.level == 1) print(opt_b$par)
-    des_b <- opt_b$par
-  }
-  
-  c(-opt_a$value, 1-opt_b$value, opt_a$par, opt_b$par)
-}
-
-get_ocs(c=2.6, n=30, x0=x0, x1=x1, mu=0.3, n_e=500, n_t=235, Ms = 10^seq(0:5), print.level = 1)
-
-# Check against simulation
-do_sim <- function(c, phi)
-{
-  mu <- 0.3; n <- 30; n_e <- 500; n_t <- 235
-  p_r <- phi[1]; p_a <- phi[2]; p_f <- phi[3] 
-  exp_n <- get_exp_N(n_e, n_t, p_r)
-  sd <- 1
-  
-  a_est <- rbinom(1, n, p_a)/n
-  f <- rbinom(1, 2*n, p_f)
-  f_est <- f/(2*n)
-  r_est <- 2*n/(rnbinom(1, 2*n, p_r) + 2*n)
-  
-  stat <- mu*a_est*sqrt(get_exp_N(n_e, n_t, r_est)*f_est)/sqrt((2*sd^2 + mu*mu*a_est*(1-a_est)))
-  stat > c
-}
-
-#mean(replicate(100000, do_sim(2.4, phi=c(0.9976897, 0.8637934, 1.0000000))))
+ggplot(sub[101:200,], aes(c_1, c_2, colour=c_3)) + geom_point() +
+  theme_minimal() + xlab(expression(c[1])) + ylab(expression(c[3])) +
+  labs(color = expression(c[3]))
 ```
 
-Now, for a fixed pilot sample size, see what error rates we can obtain by using different critical values.
+We can relax the assumption of independance between the follow-up and adherence outcomes. We see that as the odds ratio increases, power decreases (this relationship is also noted in Bryant and Day). We might resonably restrict attention to postive odds ratios - we wouldn't expect adherence and follow-up to be inversly correlated. Then we should define type I error with an OR of 1, and type II with an OR of inf. This is very conservative - better to recommend a sensitivity analysis around some (possibly conservative) guess of the true OR?
 
-```{r}
-cs <- seq(2, 3, 0.05)
+We use the notation $p_{11}$ to denote the probability a participant will both adhere and be followed up; $p_{10}$ to denote adherence but loss to follow-up; and similarly for $p_{01}$ and $p_{00}$. We specify the model in terms of the conditional probability of adherence given follow-up, $\phi_a = p_{11}/(p_{11} + p_{01})$; overall probability of follow-up, $\phi_f = p_{01} + p_{11}$; and the odds ratio $\phi_{OR} = p_{00}p_{11}/p_{01}p_{10}$. These inputs translate into the following probabilities:
+$$
+\begin{aligned}
+p_{11} &= \phi_a \phi_f \\
+p_{01} &= \phi_f - p_{11} \\
+p_{00} &= \frac{\phi_{OR} ~ p_{01}(1-p_{11}-p_{01})}{p_{11} + \phi_{OR} ~ p_{01}} \\
+p_{10} &= 1 - p_{11} - p_{01} - p_{00}.
+\end{aligned}
+$$
 
-ocs30 <- NULL
-des_a <- des_b <- rep(0.1,3)
-for(c in cs){
-  r <- get_ocs(c, n=30, x0=x0, x1=x1, mu=0.3, n_e=500, n_t=234, Ms = 10^seq(1:5), des_a=des_a, des_b=des_b)
-  ocs30 <- rbind(ocs30, r[1:2])
-  des_a <- r[3:5]; des_b <- r[6:8]
-}
-
-ocs30 <- sapply(cs, get_ocs, n=30, x0=x0, x1=x1, mu=0.3, n_e=500, n_t=234, Ms = 10^seq(1:5))
-plot(ocs30)
-#saveRDS(ocs30, "ex1_ocs_n30.Rda")
-
-ocs50 <- sapply(cs, get_ocs, n=50, x0=x0, x1=x1, n_e=500, n_t=234)
-#saveRDS(ocs50, "ex1_ocs_n50.Rda")
-```
-
-Try multi-bjective
-```{r}
-MO_f <- function(y, n, x0, x1, mu=0.3, n_e, n_t)
-{
-  cc <- y[1]; sd <- 1
-  
-  p_r <- y[2]; p_a <- y[3]; p_f <- y[4]; 
-  alpha <- get_comp_ocs_cpp3(matrix(c(cc, p_r, p_a, p_f, sd), ncol=5), n, mu, n_e, n_t) #- 
-
-  
-  p_r <- y[5]; p_a <- y[6]; p_f <- y[7]; 
-  beta <- 1 - get_comp_ocs_cpp3(matrix(c(cc, p_r, p_a, p_f, sd), ncol=5), n, mu, n_e, n_t) #- 
-
-  
-  return(-c(alpha, beta))
-}
-
-MO_g <- function(y, n, x0, x1, mu=0.3, n_e, n_t)
-{
-  cc <- y[1]; sd <- 1
-  
-  p_r <- y[2]; p_a <- y[3]; p_f <- y[4]; 
-  exp_n <- get_exp_N(n_e, n_t, p_r)
-  con_a <-  p_a*mu*sqrt(p_f*exp_n)/sqrt(2*sd^2 + mu^2 * p_a*(1-p_a))
-
-  p_r <- y[5]; p_a <- y[6]; p_f <- y[7]; 
-  exp_n <- get_exp_N(n_e, n_t, p_r)
-  con_b <-  p_a*mu*sqrt(p_f*exp_n)/sqrt(2*sd^2 + mu^2 * p_a*(1-p_a))
-
-  return(c(x0-con_a, con_b-x1))
-}
-
-opt <- nsga2(fn=MO_f, 7, 2, 
-             n=30, x0=x0, x1=x1, mu=0.3, n_e=500, n_t=234,
-             lower.bounds = c(2, rep(0.1,6)), upper.bounds = c(3, rep(1,6)),
-             generations = 500,
-             constraints = MO_g, cdim=2)
-
-# Vecotrised - everything in C++
-opt <- nsga2(fn=vec_f, 7, 2, 
-             n=30, x0=x0, x1=x1, mu=0.3, n_e=500, n_t=234,
-             lower.bounds = c(2, rep(0.1,6)), upper.bounds = c(3, rep(1,6)),
-             generations = 10,
-             #constraints = vec_g, cdim=2,
-             vectorized = TRUE)
-
-# Start the clock!
-ptm <- proc.time()
-z <- replicate(1000, MO_f(c(2.4,rep(0.9,6)), n=30, x0=x0, x1=x1, mu=0.3, n_e=500, n_t=234))
-#z <- replicate(1, vec_f(matrix(rep(c(2.4,rep(0.9,6)),1000), ncol=7, byrow = T), n=30, x0=x0, x1=x1, mu=0.3, n_e=500, n_t=234))
-proc.time() - ptm
-# So, no benefits from vectorising
-
-ggplot(data.frame(-opt$value), aes(X1,X2)) + geom_point() + geom_line() + coord_fixed() + ylim(c(0,1))
-```
-
-Now plot the results:
-```{r}
-ocs30 <- readRDS("ex1_ocs_n30.Rda")
-ocs50 <- readRDS("ex1_ocs_n50.Rda")
-
-df <- data.frame(a = c(ocs30[1,], ocs50[1,]), b=c(ocs30[2,], ocs50[2,]), n=c(rep(30, ncol(ocs30)), rep(50,ncol(ocs30))))
-ggplot(df, aes(a, b, colour=as.factor(n))) + geom_point() + geom_line() +
-  theme_minimal() + #xlim(c(0,0.5)) + ylim(c(0,0.5)) +
-  scale_colour_manual(name=expression(n[p]), values=colours) +
-  ylab(expression(beta)) + xlab(expression(alpha))
-
-#ggsave("U:/Projects/MRC SDF/WP1/Papers/Feasibility test/Figures/ex_ocs.pdf", height=9, width=14, units="cm")
-```
-Take an example design and look at the sensitivity of error rates as the odds ratio increases.
-
-```{r}
-ors <- seq(1,10, 0.02)
-sen_ocs <- sapply(ors, function(x) get_ocs_cor(2.5, n=30, x0, x1, mu=0.3, n_e=500, n_t=234, or=x))
-df <- data.frame(or = ors, p=c(sen_ocs[1,], sen_ocs[2,]), oc=c(rep("a", ncol(sen_ocs)), rep("b", ncol(sen_ocs))))
-saveRDS(df, "sen_ocs.Rda")
-```
-
-```{r}
-df <- readRDS("sen_ocs.Rda")
-df <- df[df$or <= 10,]
-
-ggplot(df, aes(or, p, colour=oc)) + geom_point() +
-  xlab("Odds ratio") + ylab("Error rate") +
-  scale_colour_discrete(name=("Error type"), labels=c(expression(alpha), expression(beta))) +
-  theme_minimal()
-
-#ggsave("U:/Projects/MRC SDF/WP1/Papers/Feasibility test/Figures/ex_sens.pdf", height=9, width=14, units="cm")
-```
-
-We can plot the surface we are optimising over and see where the maximum error rates are obtained, say for $n=30$ and $c=2.5$:
-
-```{r}
-# Type I
-df <- expand.grid(p_r=seq(0,1,0.01), p_a=seq(0,1,0.01))
-df$p_f <- apply(df, 1, get_fup, xi=x0, mu=mu, n_e=235, n_t=235)
-sub <- df[df$p_f <= 1 & df$p_r <=1,]
-sub$a <- -apply(sub, 1, get_oc, n=30, cc=2.4, xi=x0, n_e=235, n_t=235)
-max(sub$a)
-
-#ptm <- proc.time()
-#x <- replicate(500, get_oc(as.numeric(sub[10,1:2]), n=30, cc=2.4, xi=x0, n_e=800, n_t=235))
-#proc.time() - ptm
-
-ggplot(sub, aes(p_r, p_a, z=a)) + geom_contour(aes(colour=..level..)) +
-  theme_minimal() + xlab("R") + ylab("A") + 
-  guides(colour = guide_legend(title = expression()))
-
-# Type II
-df <- expand.grid(p_r=seq(0,1,0.03), p_a=seq(0,1,0.03))
-df$p_f <- apply(df, 1, get_fup, xi=x1, mu=mu, n_e=800, n_t=235)
-sub <- df[df$p_f <= 1 & df$p_r <= 1,]
-sub$a <-  -apply(sub, 1, get_oc, n=30, cc=2.4, xi=x1, n_e=800, n_t=235)
-min(sub$a)
-
-ggplot(sub, aes(p_r, p_a, z=a)) + geom_contour(aes(colour=..level..)) +
-  theme_minimal() + xlab("R") + ylab("Adherence") + 
-  guides(colour = guide_legend(title = expression()))
-```
-
-We see that error rates appear to be maximised when $p_r = p_f = 1$ and $p_a$ is minimised. But this is not actually the case. Take the point (0.9968275,1,0.685), which gives $\alpha = 0.225$. In contrast, the point (0.9543184,1,0.7) gives a higher $\alpha = 0.261$. On the other hand, type II error does seem to be consistently maximised when $p_r = p_f = 1$.
-
-### Extensions
-
-#### Correlated follow-up and adherence
-
-First, we can relax the assumption of independance between the follow-up and adherence outcomes. We see that as the odds ratio increases, power decreases (this relationship is also noted in Bryant and Day). We might resonably restrict attention to postive odds ratios - we wouldn't expect adherence and follow-up to be inversly correlated. Then we should define type I error with an OR of 1, and type II with an OR of inf. This is very conservative - better to recommend a sensitivity analysis around some (possibly conservative) guess of the true OR?
 
 ```{r}
 get_oc_cor <- function(phi, n, cc, xi, a=TRUE, mu=0.3, n_e, n_t, or)
 {
   p_r <- phi[1]; p_a <- phi[2]; sd <- 1
+  if(any(c(p_r,p_a) < 0) | any(c(p_r,p_a) > 1) ){return(1000)}
   exp_n <- get_exp_N(n_e, n_t, p_r)
   p_f <- (2*sd^2 + mu^2 *p_a*(1-p_a))*xi^2/((p_a*mu)^2*exp_n)
-  if(p_f <= 1){
-    (a*-1 + !a*1)*get_comp_ocs_cpp4(cc, n, matrix(c(p_r, p_a, p_f, or), ncol=4), mu, n_e, n_t)
+  if(any(c(p_r,p_a,p_f) < 0) | any(c(p_r,p_a,p_f) > 1) ){
+    1000
   } else {
-    10000
+    (a*-1 + !a*1)*get_comp_ocs_cpp4(cc, n, matrix(c(p_r, p_a, p_f, or), ncol=4), mu, n_e, n_t)
   }
 }
 
 get_ocs_cor <- function(c, n, x0, x1, mu=0.3, n_e, n_t, or)
 {
-  df <- expand.grid(p_r=seq(0,1,0.02), p_a=seq(0,1,0.02))
-  df$p_f <- apply(df, 1, get_fup, xi=x0, mu=mu, n_e=n_e, n_t=n_t)
-  sub <- df[df$p_f <= 1 & df$p_r <=1,]
-  sub$a <- -apply(sub, 1, get_oc_cor, n=n, cc=c, xi=x0, mu=mu, n_e=n_e, n_t=n_t, or=or)
+  opt_a <- optim(c(0.9,0.9), fn=get_oc_cor,
+                 cc=c, n=n, xi=x0, a=T, mu=mu, n_e=n_e, n_t=n_t, or=1)
   
-  opt_a <- optim(sub[which.max(sub$a),1:2], fn=get_oc_cor, lower = c(0.1,0.1), upper=c(1,1),
-                  cc=c, n=n, xi=x0, mu=mu, n_e=n_e, n_t=n_t, or=or, method="L-BFGS-B")
-  
-  # Type II
-  df <- expand.grid(p_r=seq(0,1,0.02), p_a=seq(0,1,0.02))
-  df$p_f <- apply(df, 1, get_fup, xi=x1, mu=mu, n_e=n_e, n_t=n_t)
-  sub <- df[df$p_f <= 1 & df$p_r <= 1,]
-  sub$a <-  -apply(sub, 1, get_oc_cor, n=n, cc=c, xi=x1, mu=mu, n_e=n_e, n_t=n_t, or=or)
-  
-  opt_b <- optim(sub[which.min(sub$a),1:2], fn=get_oc_cor, lower = c(0.1,0.1), upper=c(1,1),
-                 cc=c, n=n, xi=x1, a=F, mu=mu, n_e=n_e, n_t=n_t, or=or, method="L-BFGS-B")
+  opt_b <- optim(c(0.9,0.9), fn=get_oc_cor,
+                 cc=c, n=n, xi=x1, a=F, mu=mu, n_e=n_e, n_t=n_t, or=or)
   
   c(-opt_a$value, 1-opt_b$value)
 }
 
-# For example,
-get_ocs_cor(2.4, n=30, x0, x1, mu=0.3, n_e=500, n_t=234, or=1)
+get_ocs_cor(2.6, n=50, x0=qnorm(0.65) + qnorm(0.975), x1, mu=0.3, n_e=1000, n_t=514, or=5)
 ```
 
-#### Unknown variance
+## Extensions
+
+### Estimating outcome SD
+
+We have a c++ function implementing the relevant equation. We can check it against a simulation:
 
 ```{r}
-get_sd <- function(phi, xi, mu, n_e, n_t)
-{
-  p_r <- phi[1]; p_a <- phi[2]; p_f <- phi[3]
-  exp_n <- get_exp_N(n_e, n_t, p_r)
-  sqrt((p_f*(p_a*mu)^2*exp_n - mu^2 *p_a*(1-p_a)*xi^2)/(2*xi^2))
-}
-
-get_oc_var <- function(phi, n, cc, xi, a=TRUE, mu=0.3, n_e, n_t, M)
-{
-  p_r <- phi[1]; p_a <- phi[2]; p_f <- phi[3]; sd <- 1
-  exp_n <- get_exp_N(n_e, n_t, p_r)
-  #con <-  p_a*mu*sqrt(p_f*exp_n)/sqrt(2*sd^2 + mu^2 * p_a*(1-p_a))
-  sd <- sqrt((p_f*(p_a*mu)^2*exp_n - mu^2 *p_a*(1-p_a)*xi^2)/(2*xi^2))
-  if(!is.na(sd)){
-    #(a*-1 + !a*1)*get_ocs_var_cpp(cc, n, matrix(c(p_r, p_a, p_f, sd), ncol=4), mu, n_e, n_t) + M*(xi-con)^2 
-    (a*-1 + !a*1)*get_ocs_var_cpp(cc, n, matrix(c(p_r, p_a, p_f, sd), ncol=4), mu, n_e, n_t) + M*(max(0,0.8-sd)^2)
-  } else {
-    10000
-  }
-}
-
-get_ocs_var <- function(c, n, x0, x1, mu, n_e, n_t, Ms, print.level=0)
-{
-  # Type I
-  des <- c(1,1,1)
-  for(m in Ms){
-    opt_a <- optim(des, fn=get_oc_var, lower = c(0.1,0.1,0.1), upper=c(1,1,1),
-                  cc=c, n=n, xi=x0, a=T, mu=mu, n_e=n_e, n_t=n_t, method="L-BFGS-B", M=m)
-    if(print.level == 1) print(c(opt_a$par, get_sd(opt_a$par, x0, mu, n_e, n_t)))
-    des <- opt_a$par
-  }
-
-  # Type II
-  des <- c(1,1,1)
-  for(m in Ms){
-    opt_b <- optim(des, fn=get_oc_var, lower = c(0.1,0.1,0.1), upper=c(1,1,1),
-                  cc=c, n=n, xi=x1, a=F, mu=mu, n_e=n_e, n_t=n_t, method="L-BFGS-B", M=m)
-    if(print.level == 1) print(c(opt_b$par, get_sd(opt_b$par, x1, mu, n_e, n_t)))
-    des <- opt_b$par
-  }
-  
-  c(-opt_a$value, 1-opt_b$value)
-}
-
-get_ocs_var(c=2.4, n=30, x0=x0, x1=x1, mu=0.3, n_e=500, n_t=235, Ms = 10^seq(1:5), print.level = 1)
-  
 # Compare with simulation
-sim <- function(phi)
+sim <- function(phi, n, c, xi, mu, n_e, n_t)
 {
-  xi <- x1; mu <- 0.3; n <- 30; c <- 2.4; n_e <- 500; n_t <- 235
   p_r <- phi[1]; p_a <- phi[2]; p_f <- phi[3] 
   exp_n <- get_exp_N(n_e, n_t, p_r)
-  sd <- sqrt((p_f*(p_a*mu)^2*exp_n - mu^2 *p_a*(1-p_a)*xi^2)/(2*xi^2))
+  sd <- sqrt( (p_f*(p_a*mu)^2*exp_n - 2*mu^2 *p_a*(1-p_a)*xi^2)/(4*xi^2) )
   
   a_est <- rbinom(1, n, p_a)/n
   f <- rbinom(1, 2*n, p_f)
@@ -703,176 +513,125 @@ sim <- function(phi)
   r_est <- 2*n/(rnbinom(1, 2*n, p_r) + 2*n)
   var_est <- rchisq(1, f-1)*(sd^2)/(f-1)
   
-  stat <- mu*a_est*sqrt(get_exp_N(n_e, n_t, r_est)*f_est)/sqrt((2*var_est + mu*mu*a_est*(1-a_est)))
+  #var_crit <- (mu*mu*a_est*a_est*f_est*get_exp_N(n_e, n_t, r_est) - 2*mu*mu*a_est*(1-a_est)*c*c)/(4*c*c)
+  #pchisq(var_crit*(f-1)/(sd^2), f-1)
+  
+  stat <- mu*a_est*sqrt(get_exp_N(n_e, n_t, r_est)*f_est)/sqrt((4*var_est + 2*mu*mu*a_est*(1-a_est)))
   stat > c
 }
   
-phi <- c(0.8711703, 0.8642971, 0.9988547)
-mean(replicate(100000, sim(phi)))
+phi <- c(0.5196304, 0.6670084, 0.9997755); n_e <- 1000; n_t <- 514; xi <- x1; mu <- 0.3
+p_r <- phi[1]; p_a <- phi[2]; p_f <- phi[3] 
+exp_n <- get_exp_N(n_e, n_t, p_r)
+sd <- sqrt( (p_f*(p_a*mu)^2*exp_n - 2*mu^2 *p_a*(1-p_a)*xi^2)/(4*xi^2) )
+
+get_ocs_var_cpp(c=2.4, n=30, matrix(c(phi, sd), ncol=4), mu=0.3, n_e=1000, n_t=514)
+mean(replicate(10000, sim(phi, n=30, c=2.4, xi=x1, mu=0.3, n_e=1000, n_t=514)))
 ```
 
-Find error rates for a range of c as before.
+Now we can find error rates under the same multi-objective optimisation framework as before:
+
 ```{r}
-cs <- seq(2, 3, 0.05)
-ocs30 <- sapply(cs, get_ocs_var, n=50, x0=x0, x1=x1, mu=0.3, n_e=500, n_t=234, Ms = 10^seq(1:5))
-plot(t(ocs30))
+get_ocs_var <- function(y, n, x0, x1, mu=0.3, n_e, n_t)
+{
+  # Input y = (c, [point in null space], point in alternative space])
+  c <- y[1]
+  
+  # Probability of +ve result at the null point
+  p_r <- y[2]; p_a <- y[3]; p_f <- y[4]; sd <- y[5]
+  alpha <- get_ocs_var_cpp(c=c, n=n, matrix(c(p_r, p_a, p_f, sd), ncol=4), mu, n_e, n_t)
 
-ocs30 <- as.data.frame(t(ocs30))
-names(ocs30) <- c("a", "b")
+  # Probability of -ve result at the alternative point
+  p_r <- y[6]; p_a <- y[7]; p_f <- y[8]; sd <- y[9]
+  beta <- 1 - get_ocs_var_cpp(c=c, n=n, matrix(c(p_r, p_a, p_f, sd), ncol=4), mu, n_e, n_t)
 
-#saveRDS(ocs30, "ex1_ocs_n30_var.Rda")
+  # Returning negative values for optimisation later
+  return(-c(alpha, beta))
+}
+
+# For example,
+get_ocs(c(2.4, 0.64, 0.73, 0.8769883, 1, 0.96, 1, 0.7422108, 0.9), 30, x0, x1, 0.3, 1000, 514) 
 ```
 
-Now plot the results and compare with the case with no estimation of $\sigma$.
 ```{r}
-ocs_var <- as.data.frame(readRDS("ex1_ocs_n30_var.Rda"))
-names(ocs_var) <- c("a", "b")
+get_constr_var <- function(y, n, x0, x1, mu=0.3, n_e, n_t)
+{
+  p_r <- y[2]; p_a <- y[3]; p_f <- y[4]; sd <- y[5]
+  exp_n <- get_exp_N(n_e, n_t, p_r)
+  con_a <-  p_a*mu*sqrt(p_f*exp_n)/sqrt(4*sd^2 + 2*mu^2 * p_a*(1-p_a))
 
-df <- readRDS("eval_data.Rda")
-sub <- df[df$nul_pow == 0.6 & df$n_t == "234" & df$np ==30, 1:2]
+  p_r <- y[6]; p_a <- y[7]; p_f <- y[8]; sd <- y[9]
+  exp_n <- get_exp_N(n_e, n_t, p_r)
+  con_b <-  p_a*mu*sqrt(p_f*exp_n)/sqrt(4*sd^2 + 2*mu^2 * p_a*(1-p_a))
 
-ocs_var$t <- "u_var"
-sub$t <- "k_var"
+  return(c(x0-con_a, con_b-x1))
+}
 
-df <- rbind(sub, ocs_var)
+# For example, change the alternative point from above so it is outside the alternative hypothesis
+get_constr_var(c(2.4, 0.64, 0.73, 0.8769883, 1, 0.96, 0.9, 0.7422108, 0.95), 30, x0, x1, 0.3, 1000, 514)
+```
 
-ggplot(df, aes(a, b, shape=t)) + geom_point() +
+Now optimise, but with the search constrained to $0.8 < \sigma$:
+
+```{r, eval = F}
+ptm <- proc.time()
+
+opt <- nsga2(fn=get_ocs_var, 9, 2, 
+             n=50, x0=qnorm(0.65) + qnorm(0.975), x1=x1, mu=0.3, n_e=1000, n_t=514,
+             lower.bounds = c(2, 0.1,0.1,0.1, 0.8,  0.1,0.1,0.1, 0.8),
+             upper.bounds = c(3, 1,1,1, 2, 1,1,1, 2),
+             generations = 1:200, popsize = 100,
+             constraints = get_constr_var, cdim=2)
+
+proc.time() - ptm
+
+#   user  system elapsed 
+# 3916.90    5.93 3963.75 , so ~ 1.1 hours 
+
+#saveRDS(opt, "./data/opt_var.Rda")
+```
+
+Check convergence:
+
+```{r}
+DHs <- NULL
+for(i in 1:length(opt)){
+  dh <- dominatedHypervolume(-opt[[i]]$value, c(1,1))
+  DHs <- c(DHs, dh)
+}
+plot(DHs)
+```
+Compare with the same scenario but where we didn't include sd estimation:
+
+```{r}
+opt <- readRDS("./data/opt.Rda")
+opt_var <- readRDS("./data/opt_var.Rda")
+
+df <- data.frame(a=-opt[[200]]$value[,1], b=-opt[[200]]$value[,2])
+df_var <- data.frame(a=-opt_var[[200]]$value[,1], b=-opt_var[[200]]$value[,2])
+
+df <- rbind(df, df_var)
+df$t <- c(rep("Known variance", 100), rep("Unknown variance", 100))
+
+ggplot(df, aes(a, b, shape=t, linetype=t)) + 
+  geom_point() +
+  geom_line() +
+  scale_shape_manual(values=c(16, 2)) +
   xlab(expression(alpha)) + ylab(expression(beta)) +
-  scale_shape_discrete(name="", labels=c("Known variance", "Unknown varaince")) +
-  coord_fixed() + theme_minimal()
+  labs(shape = "", linetype="") +
+  theme_minimal() +
+  scale_y_continuous(breaks = seq(0,1,0.2)) + scale_x_continuous(breaks = seq(0,1,0.2)) +
+  coord_fixed()
 
-#ggsave("U:/Projects/MRC SDF/WP1/Papers/Feasibility test/Figures/unknown_var.pdf", height=9, width=14, units="cm")
+ggsave("./paper/figures/var_ocs.pdf", height=9, width=14, units="cm")
+ggsave("./paper/figures/var_ocs.eps", height=9, width=14, units="cm", device = cairo_ps())
 ```
 
-We see empirically that error rates are maximised when $\sigma$ is minimised. So, firstly, we need to choose some lower bound for $\sigma$ that we want to control error rates for. Secondly, can we see analytucally why this is the case, and thus reduce the problem back to one of fixed $\sigma$ (at the chosen lower bound)? As $\sigma$ decreases, one of the three rate parameters will also have to decrease to stay on the hypothesis border. Broadly, error rates will be maximised when the variance of the statistic is maximised. As $\sgima$ decreases, the variance of the statistic will increase (via increase in the $1/\sigma$ term). Decresing a rate parameter (whilst being above 0.5) will increase the sample variance and therefore also the statistics variance. We can only show this all empirically at the moment:
-
-```{r}
-get_var_sd <- function(sd, n)
-{
-  var(1/sqrt(rchisq(10000,n-1)*(sd^2)/(n-1)))
-}
-
-sds <- seq(0.5,2,0.1)
-vars <- sapply(sds, get_var_sd, n=20)
-plot(sds, vars)
-```
-If we can show that, for the problems in our scope, this is always going to be the case then we have simplified the problem somewhat. But now we require everything to be conditional on a lower bound on the variance.
-
-
-## References
-
-
-## Extension - variances
-
-We can incorporate estimatig variance components into our framework. 
-
-```{r}
-# Just one sd
-power.t.test(delta=0.3, sd=1, power=0.9) # n_i = 234*2
-# Previously, allowed for an inflated of 500 being null, and 350 being alt
-power.t.test(delta=0.3, sd=1, power=0.5) # null
-power.t.test(delta=0.3, sd=1, power=0.9) # alt
-
-np <- 30
-sds_n <- sqrt(1.45^2 * rchisq(10000, 2*np-1)/(2*np-1))
-sds_a <- sqrt(1.15^2 * rchisq(10000, 2*np-1)/(2*np-1))
-
-rules <- seq(0.8, 1.5, 0.01)
-tIs <- sapply(rules, function(x) mean(sds_n < x))
-tIIs <- sapply(rules, function(x) mean(sds_a > x))
-plot(tIs, tIIs)
-
-
-obj_f_null <- function(x, n_i)
-{
-  p_r <- x[1]; p_f <- x[2]; p_a <- x[3]; sd <- x[4]
-  
-  y <- p_a*0.3*sqrt(p_r*p_f)/sqrt(2*sd^2 + 0.3^2 * p_a*(1-p_a))
-  
-  pen <- 100000*(y - x0)^2 # x0 calculated below
-  return( -c(x[1:3], -x[4]) + pen)
-}
-
-obj_f_alt <- function(x, n_i)
-{
-  p_r <- x[1]; p_f <- x[2]; p_a <- x[3]; sd <- x[4]
-  
-  y <- p_a*0.3*sqrt(p_r*p_f)/sqrt(2*sd^2 + 0.3^2 * p_a*(1-p_a))
-  
-  pen <- 100000*(y - x1)^2 # x0 calculated below
-  return( -c(x[1:3], -x[4]) + pen)
-}
-
-# Generate a set approximating the null space boundary
-opt <- nsga2(obj_f_null, 4, 4, n_i=n_i,
-             lower.bounds = c(0, 0, 0, 0.5), upper.bounds = c(1, 1, 1, 2),
-             popsize = 1000)
-null <- as.data.frame(opt$par)
-names(null) <- c("p_r", "p_f", "p_a", "sd")
-ggplot(null, aes(p_r, p_f, colour=p_a)) + geom_point()
-
-# Generate a set approximating the alternative space boundary
-opt <- nsga2(obj_f_alt, 4, 4, n_i=n_i,
-             lower.bounds = c(0, 0, 0, 0.5), upper.bounds = c(1, 1, 1, 2),
-             popsize = 1000)
-alt <- as.data.frame(opt$par)
-names(alt) <- c("p_r", "p_f", "p_a", "sd")
-ggplot(alt, aes(p_r, p_f, colour=p_a)) + geom_point()
-```
-
-```{r}
-get_comp_ocs_var_MC <- function(rule, n, par, sigma, N)
-{
-  # par = (phi_r, phi_f, phi_a, mu, sd)
-  
-  # Simulate outcomes in the intervention arm
-  # (af, a!f, !af, !a!f)
-  m <- t(rmultinom(N, n, c(par[3]*par[2], par[3]*(1-par[2]), (1-par[3])*par[2], (1-par[3])*(1-par[2]))))
-  
-  # Simulate follow-up in the control arm
-  f0 <- rbinom(N, n, par[2])
-  
-  # Simulate number of failures before recruitment was met
-  s <- rnbinom(N, 2*n, par[1])
-  
-  # Simulate sample sds
-  sds <- sqrt(par[4]^2 * rchisq(N, 2*n-1)/(2*n-1))
-  
-  df <- cbind(m,f0,s)
-  
-  ns <- rnorm(N)
-  
-  ts <- MC_cpp(df, ns, sigma, par[4], n)[,3]
-  
-  ts2 <- 234*ts/(sds^2)
-  ts2[is.na(ts2)] <- -10
-  
-  alpha <- mean(ts2 > rule)
-  return(alpha)
-}
-
-get_comp_ocs_var_MC(160, n=30, par=as.numeric(null[200,]), sigma=1, N=1000)
-get_comp_ocs_var_MC(160, n=30, par=as.numeric(alt[200,]), sigma=1, N=1000)
-
-get_max_comp_ocs_eff <- function(rule, n, sigma, null, alt)
-{
-  N <- 1000
-  # get max alpha
-  a <- max(apply(null, 1, function(x, rule, n, sigma) get_comp_ocs_var_MC(rule, n, x, sigma, N), rule=rule, n=n, sigma=sigma))
-
-  # get max beta
-  b <- 1 - min(apply(alt, 1, function(x, rule, n, sigma) get_comp_ocs_var_MC(rule, n, x, sigma, N), rule=rule, n=n, sigma=sigma))
-  
-  return(c(a,b))
-}
-
-# For example
-get_max_comp_ocs_eff(rule=140, n=50, sigma=1, null, alt)
-```
+We see empirically that error rates are maximised when $\sigma$ is minimised. So, firstly, we need to choose some lower bound for $\sigma$ that we want to control error rates for. Secondly, can we see analytucally why this is the case, and thus reduce the problem back to one of fixed $\sigma$ (at the chosen lower bound)? As $\sigma$ decreases, one of the three rate parameters will also have to decrease to stay on the hypothesis border. Broadly, error rates will be maximised when the variance of the statistic is maximised. As $\sgima$ decreases, the variance of the statistic will increase (via increase in the $1/\sigma$ term). Decresing a rate parameter (whilst being above 0.5) will increase the sample variance and therefore also the statistics variance. We can only show this all empirically at the moment.
 
 Note that there is a natural _upper_ limit for the variance when we compute our hypotheses - as the variance increases (gets worse), the other three parameters have to increase (get better) to compensate, but they can't exceed 1. So we can stick any upper limit into our optimiser. But the lower limit is more sensitive - as variance decreases, we allow much lower rates into our hypotheses, and this leads to increases in the error rates. So we need to choose a variance, below which we are not interested in controlling errors. 
 
-## Extension - using the pilot estimate
+### Using the pilot estimate
 
 So far, we have assumed that the size of the main trial has been fixed in advance, and defined our hypotheses based on the power that the fixed size will obtain. After the pilot we will have an estimate - also our test sttaistic - of the inflated sample size the main trial will need to obtain 80\% power, so it might be reasonable to use this for our main trial. In particular, we might restrict ourselves to inflations of the original suggestion. Togther with the test ruling out results below the critical value, we are then controlling the probability of being in segments of the power curves corresponding to our null and alternatives. 
 
@@ -947,7 +706,7 @@ ggplot(df, aes(n, p, colour=h)) + geom_line() + geom_vline(xintercept = 174, lin
   theme_minimal()
 ```
 
-## Extension - assessing efficacy
+### Assessing efficacy
 
 If we would like to simultaneously assess the effectiveness of the intervention alongside the feasibility of the trial, we must reconsider how we define our hypotheses. One way to approach this is to define a value function over the two dimensional space of effectiveness and power of the main trial (assuming the sample size is fixed). If we can say that value in one dimension should be linear when the other attribute is fixed at some level, we get a value function
 $$
@@ -1126,3 +885,43 @@ names(df)[2:3] <- c("a", "b")
 
 ggplot(df, aes(a,b)) + geom_point() + coord_fixed() + geom_abline(intercept = 1, slope = -1)
 ```
+
+## References
+
+`r knitr::knit_exit()`
+
+
+
+We can plot the surface we are optimising over and see where the maximum error rates are obtained, say for $n=30$ and $c=2.5$:
+
+```{r}
+# Type I
+df <- expand.grid(p_r=seq(0,1,0.01), p_a=seq(0,1,0.01))
+df$p_f <- apply(df, 1, get_fup, xi=x0, mu=mu, n_e=235, n_t=235)
+sub <- df[df$p_f <= 1 & df$p_r <=1,]
+sub$a <- -apply(sub, 1, get_oc, n=30, cc=2.4, xi=x0, n_e=235, n_t=235)
+max(sub$a)
+
+#ptm <- proc.time()
+#x <- replicate(500, get_oc(as.numeric(sub[10,1:2]), n=30, cc=2.4, xi=x0, n_e=800, n_t=235))
+#proc.time() - ptm
+
+ggplot(sub, aes(p_r, p_a, z=a)) + geom_contour(aes(colour=..level..)) +
+  theme_minimal() + xlab("R") + ylab("A") + 
+  guides(colour = guide_legend(title = expression()))
+
+# Type II
+df <- expand.grid(p_r=seq(0,1,0.03), p_a=seq(0,1,0.03))
+df$p_f <- apply(df, 1, get_fup, xi=x1, mu=mu, n_e=800, n_t=235)
+sub <- df[df$p_f <= 1 & df$p_r <= 1,]
+sub$a <-  -apply(sub, 1, get_oc, n=30, cc=2.4, xi=x1, n_e=800, n_t=235)
+min(sub$a)
+
+ggplot(sub, aes(p_r, p_a, z=a)) + geom_contour(aes(colour=..level..)) +
+  theme_minimal() + xlab("R") + ylab("Adherence") + 
+  guides(colour = guide_legend(title = expression()))
+```
+
+We see that error rates appear to be maximised when $p_r = p_f = 1$ and $p_a$ is minimised. But this is not actually the case. Take the point (0.9968275,1,0.685), which gives $\alpha = 0.225$. In contrast, the point (0.9543184,1,0.7) gives a higher $\alpha = 0.261$. On the other hand, type II error does seem to be consistently maximised when $p_r = p_f = 1$.
+
+
