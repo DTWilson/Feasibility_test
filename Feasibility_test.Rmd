@@ -73,12 +73,14 @@ sub <- rbind(sub, sub_a)
 # Discard any infeasible points
 sub <- sub[sub$p_f <= 1,]
 
-ggplot(sub, aes(p_r, p_a, z=p_f, colour=p_f)) +
+p <- ggplot(sub, aes(p_r, p_a, z=p_f, colour=p_f)) +
   geom_contour(aes(colour=..level..), breaks=c(0.5,0.6,0.7,0.8,0.9,1)) +
   theme_minimal() + xlab("Recruitment") + ylab("Adherence") + 
   guides(colour = guide_legend(title = "Follow-up")) +
   facet_grid(. ~ factor(h, levels=c("Null", "Alternative"))) +
   theme(panel.spacing = unit(1, "lines"))
+p
+#direct.label(p, "last.qp")
 
 ggsave("./paper/figures/hyps.pdf", height=9, width=14, units="cm")
 ggsave("./paper/figures/hyps.eps", height=9, width=14, units="cm", device = cairo_ps())
@@ -170,7 +172,7 @@ ggplot(df, aes(a, b)) + geom_point() + geom_line() +
   xlab(expression(alpha)) + ylab(expression(beta)) +
   theme_minimal() + 
   scale_y_continuous(breaks = seq(0,1,0.2)) + scale_x_continuous(breaks = seq(0,1,0.2)) +
-  coord_fixed()#+ 
+  coord_fixed() #+ 
   # point evaluated with c=2.6 and OR=1
   #geom_point(data=data.frame(a=0.1285390, b=0.1496154), colour="green") +
   # point evaluated with c=2.6 and OR=5
@@ -195,12 +197,12 @@ get_oc2 <- function(phi, n, c, xi, a=TRUE, mu=0.3, n_e, n_t)
 
 get_ocs2 <- function(c, n, x0, x1, mu=0.3, n_e, n_t)
 {
-  opt_a <- optim(c(0.9,0.9), fn=get_oc2,
+  opt_a <- psoptim(c(0.9,0.9), fn=get_oc2,
                  c=c, n=n, xi=x0, a=T, mu=mu, n_e=n_e, n_t=n_t)
   
-  opt_b <- optim(c(0.9,0.9), fn=get_oc2,
+  opt_b <- psoptim(c(0.9,0.9), fn=get_oc2,
                  c=c, n=n, xi=x1, a=F, mu=mu, n_e=n_e, n_t=n_t)
-  
+
   c(-opt_a$value, 1-opt_b$value)
 }
 
@@ -230,6 +232,16 @@ ggplot(ps, aes(p_r, p_a, colour=p_f)) + geom_point() +
   facet_grid(. ~ h) +
   labs(x=expression(p[r]), y=expression(p[a]), colour=expression(p[f])) +
   theme_minimal()
+```
+
+If we choose a $c$ based on the above OC curve, how will error rates change as we vary $n_e$ and $n_t$?
+
+```{r}
+# 2.6325915 gives OCs of 0.11, 0.20
+get_ocs2(c=2.6, n=50, x0, x1, mu=0.3, n_e=1000, n_t=514)
+get_ocs2(c=2.6, n=50, x0, x1, mu=0.3, n_e=1000, n_t=714)
+get_ocs2(c=2.6, n=50, x0, x1, mu=0.3, n_e=700, n_t=514)
+
 ```
 
 
@@ -277,53 +289,77 @@ ggsave("./paper/figures/alt.pdf", height=9, width=14, units="cm")
 ggsave("./paper/figures/alt.eps", height=9, width=14, units="cm", device = cairo_ps())
 ```
 
-
-## Evaluation
-
 ### Comparator
 
-We can comapre the error rate curve of the proposed method against that of the current approach, where the three parameter estimates are compared against seperate progression criteria thresholds and a "go" decision is made only if they are all exceeded.
+We can comapre the error rate curve of the proposed method against that of the current approach, where the three parameter estimates are compared against seperate progression criteria thresholds and a "go" decision is made only if they are all exceeded. The optimisation strategy is based on a simple grid search at both the outer (over the progression criteria) and inner (over the hypotheses) levels. 
 
 ```{r}
-get_oc_pc <- function(phi, cs, n, xi, tI, s, f, a, n_e, n_t)
+get_pf <- function(phi, xi, mu, n_e, n_t)
 {
   p_r <- phi[1]; p_a <- phi[2]; sd <- 1
   if(any(c(p_r,p_a) < 0) | any(c(p_r,p_a) > 1) ){return(1000)}
   exp_n <- get_exp_N(n_e, n_t, p_r)
-  p_f <- (4*sd^2 + 2*mu^2 *p_a*(1-p_a))*xi^2/((p_a*mu)^2*exp_n)
-  if(any(c(p_r,p_a,p_f) < 0) | any(c(p_r,p_a,p_f) > 1) ){
-    1000
-  } else {
-    (tI*-1 + !tI*1)*pnbinom(s, 2*n, p_r)*(1- pbinom(f, 2*n, p_f))*(1 - pbinom(a, n, p_a)) 
-  }
+  (4*sd^2 + 2*mu^2 *p_a*(1-p_a))*xi^2/((p_a*mu)^2*exp_n)
 }
 
-get_ocs_pc <- function(cs, n, x0, x1, n_e, n_t)
+get_oc_pc <- function(cs, n, m, tI)
 {
-  # First, get the numbers corresponding to the 
-  # critical values and their respective probabilities
-  
   # Recruitment
   s <- floor(2*n/cs[1] - 2*n)
   # Adherence
-   a <- cs[2]*n
+  a <- cs[2]*n
   # Follow-up
   f <- cs[3]*2*n
-
-  # Locally optimise 
-  opt_a <- optim(c(0.9,0.9), fn=get_oc_pc,
-                 cs=cs, n=n, xi=x0, tI=T, s=s, f=f, a=a, n_e=n_e, n_t=n_t)
-    
-  opt_b <- optim(c(0.9,0.9), fn=get_oc_pc,
-                 cs=cs, n=n, xi=x1, tI=F, s=s, f=f, a=a, n_e=n_e, n_t=n_t)
-
-  c(-opt_a$value, 1-opt_b$value)
+  
+  (tI*-1 + !tI*1)*pnbinom(s, 2*n, m[,1])*(1- pbinom(f, 2*n, m[,3]))*(1 - pbinom(a, n, m[,2]))
 }
 
-# For example,
-get_ocs_pc(rep(0.5, 3), 30, x0, x1, n_e=1000, n_t=514)
+# for example,
+
+m0 <- expand.grid(p_r = seq(0,1,0.005), p_a= seq(0,1,0.005))
+m0$p_f <- apply(m0, 1, get_pf, xi=x0, mu=0.3, n_e=1000, n_t=514)
+m0 <- m0[m0$p_f <= 1,]
+
+m1 <- expand.grid(p_r = seq(0,1,0.005), p_a= seq(0,1,0.005))
+m1$p_f <- apply(m1, 1, get_pf, xi=x1, mu=0.3, n_e=1000, n_t=514)
+m1 <- m1[m1$p_f <= 1,]
+
+cs <- c(0.3, 0.8, 0.7)
+
+alphas <- get_oc_pc(cs, n=30, m=m0, tI=T)
+betas <- get_oc_pc(cs, n=30, m=m1, tI=F)
+
+c(-min(alphas), 1-min(betas))
 ```
+
+We can search over all possible progression criteria and plot the best available error rates.
+
+```{r}
+cs <- sobol(10000, 3)
+
+alphas <- apply(cs, 1, get_oc_pc, n=30, m=m0, tI=T)
+df <- cbind(cs, -apply(alphas, 2, min))
+betas <- apply(cs, 1, get_oc_pc, n=30, m=m1, tI=F)
+df <- as.data.frame(cbind(df, 1-apply(betas, 2, min)))
+names(df) <- c("c_r", "c_a", "c_f", "a", "b")
+# saveRDS(ocs, "./data/sobol_pc.Rda")
+
+opt <- as.data.frame(paretoFilter(as.matrix(df[,4:5])))
+names(opt) <- c("a", "b")
+# saveRDS(opt, "./data/opt_pc.Rda")
+```
+
+```{r}
+df <- readRDS("./data/sobol_pc.Rda")
+opt <- readRDS("./data/opt_pc.Rda")
+
+ggplot(df, aes(a,b)) + geom_point(alpha=0.2) +
+  geom_point(data=opt, colour=cols[1]) +
+  theme_minimal() + coord_fixed()
+```
+
 We can search over all possible progression criteria and plot the best available error rates. As a check that the optimisation algorithm is working well, we also evaluate a $10^4$ size space-filling design (specifically, a Sobol sequence) and plot the results.
+
 
 ```{r, eval=F}
 opt <- nsga2(get_ocs_pc, 3, 2, n=30, x0=x0, x1=x1, n_e=1000, n_t=514,
@@ -331,11 +367,10 @@ opt <- nsga2(get_ocs_pc, 3, 2, n=30, x0=x0, x1=x1, n_e=1000, n_t=514,
               popsize = 100, generations = 100)
 # saveRDS(opt, "./data/opt_pc.Rda")
 
-to_eval <- sobol(10000,3)
+to_eval <- sobol(1000,3)
 ocs <- apply(to_eval, 1, get_ocs_pc, n=30, x0=x0, x1=x1, n_e=1000, n_t=514)
 # saveRDS(ocs, "./data/sobol_pc.Rda")
 ```
-
 
 ```{r}
 # Optimisation
@@ -354,8 +389,21 @@ p <- ggplot(df, aes(a,b)) + geom_point() + theme_minimal() +
   transition_states(t)
 animate(p, nframes = 2, fps=0.8)
 ```
+```{r}
+df <- cbind(sobol(1000,3), t(ocs))
 
-### Results
+sub <- df[df[,4]>0.8 & df[,5]>0.8, ]
+sub[which.min(0.5*sub[,4] + 0.5*sub[,5]),]
+
+sub2 <- df[df[,4]>0.9 & df[,5]>0.9, ]
+sub2[which.min(0.5*sub2[,4] + 0.5*sub2[,5]),]
+
+get_ocs_pc(c(0.3164062, 0.8085938, 0.7460938), n=50, x0, x1, n_e, n_t)
+get_ocs_pc(c(0.2832031, 0.7832031, 0.7519531), n=50, x0, x1, n_e, n_t)
+```
+
+
+## Evaluation
 
 We find the OC curves produced by the proposed method and for the comparator for a range of null hypothesis power parameters and a range of total sample sizes of the main trial. FOr each scenario, we consider pilot sample sizes of n = 30, 50 and 100.
 
