@@ -19,11 +19,6 @@ NumericVector get_comp_ocs_cpp3(NumericMatrix prm, double n, double mu, int n_e,
   // Here, calculating power of the main trial as our statistic
   int rows = prm.nrow();
   
-  NumericVector n_r(n_t);
-  for(int i=0; i<n_t; i++){
-    n_r(i) = i;
-  }
-  
   NumericVector results(rows);
   
   for(int i=0; i<rows; i++){
@@ -45,8 +40,9 @@ NumericVector get_comp_ocs_cpp3(NumericMatrix prm, double n, double mu, int n_e,
       double r_est = 2*n/(s+2*n);
       double x = 0;
       for(int m=0; m<n_t; m++){
-        x = x + R::dbinom(n_r(m), n_e, r_est, 0)*n_r(m);
+        x = x + R::dbinom(m, n_e, r_est, 0)*m;
       }
+      //if(s = 50) Rcout << x << std::endl;
       exp_n(s) = x + n_t*(1 - R::pbinom(n_t-1, n_e, r_est, 1, 0));
       p_rs(s) =  R::dnbinom(s, 2*n, pr(0), 0);
     }
@@ -70,6 +66,108 @@ NumericVector get_comp_ocs_cpp3(NumericMatrix prm, double n, double mu, int n_e,
           double stat = mu*a_est*sqrt(exp_n(s)*f_est)/sqrt((4 + 2*mu*mu*a_est*(1-a_est)));
           
           //if(r_est*f_est*a_est*a_est > c){
+          if(stat > c){
+            total = total + p_r*p_a*p_f;
+          }
+        }
+      }
+    }
+    results(i) = total;
+  }
+  return results;
+}
+
+
+
+// [[Rcpp::export]]
+NumericVector get_comp_ocs_cpp5(NumericMatrix prm, NumericVector exp_ns, double n, double mu, int n_e, int n_t)
+{
+  // Here, calculating power of the main trial as our statistic
+  int rows = prm.nrow();
+  double r_max = exp_ns.size() - 1;
+  
+  NumericVector results(rows);
+  
+  for(int i=0; i<rows; i++){
+    double total = 0;
+    NumericVector sol = prm(i, _);
+    double c = sol(0);
+    NumericVector v = NumericVector::create(1,2,3);
+    NumericVector pr = sol[v];
+    // Rcout << pr << std::endl;
+    // pr = (p_r, p_a|f, p_f)
+    
+    NumericVector pr_s(r_max+1);
+    for(int s=0; s<=r_max; s++){
+      pr_s(s) =  R::pnbinom(s, 2*n, pr(0), 1, 0);
+    }
+    
+    double sd = 1;
+    double p_a, p_f, p_r;
+    
+    for(int a=1; a<=n; a++){
+      p_a = R::dbinom(a, n, pr(1), 0);
+      double a_est = a/n;
+
+      for(int f=1; f<=2*n; f++){
+        p_f = R::dbinom(f, 2*n, pr(2), 0);
+        double f_est = f/(2*n);
+
+        double n_cut = c*c*(4 + 2*mu*mu*a_est*(1-a_est))/(mu*mu*a_est*a_est*f_est);
+
+        NumericVector sub = pr_s[exp_ns > n_cut];
+        
+        //Rcout << f << ", " << sub << std::endl;
+
+        double p_r;
+        if(sub.size() != 0){
+          p_r = sub(sub.size()-1);
+          //Rcout << p_r << std::endl;
+        } else {
+          p_r = 0;
+        }
+
+        total = total + p_r*p_a*p_f;
+      }
+    }
+    results(i) = total;
+  }
+return results;
+}
+
+
+// [[Rcpp::export]]
+NumericVector get_comp_ocs_cpp_precomp(double c, NumericMatrix pr_m, NumericMatrix pa_m, NumericMatrix pf_m, 
+                                       NumericVector exp_ns,
+                                       double n, double mu, int n_e, int n_t)
+{
+  // Here, calculating power of the main trial as our statistic
+  int rows = pr_m.nrow();
+  
+  NumericVector results(rows);
+  
+  int r_max = pr_m.ncol()-1;
+  
+  for(int i=0; i<rows; i++){
+    
+    double total = 0;
+    double sd = 1;
+    double p_a, p_f, p_r;
+    
+    for(int a=0; a<=n; a++){
+      p_a = pa_m(i,a+1);
+      double a_est = a/n;
+      
+      for(int f=0; f<=2*n; f++){
+        p_f = pf_m(i,f+1);
+        double f_est = f/(2*n);
+        
+        for(int s=r_max; s>0; s--){
+          p_r = pr_m(i,s); 
+          double r_est = (2*n/(2*n+s));
+          Rcout << s << std::endl;
+          double stat = mu*a_est*sqrt(exp_ns(s-1)*f_est)/sqrt((4 + 2*mu*mu*a_est*(1-a_est)));
+          
           if(stat > c){
             total = total + p_r*p_a*p_f;
           }

@@ -134,34 +134,19 @@ Mersmann O. {\it mco: Multiple Criteria Optimization Algorithms and Related
   Functions}.  2014.
 \newblock R package version 1.0-15.1.
 
-\bibitem{Hampson2017}
-Hampson LV, Williamson PR, Wilby MJ, Jaki T. A framework for prospectively
-  defining progression rules for internal pilot studies monitoring recruitment.
-  {\it Statistical Methods in Medical Research} 2017\string; 0(0)\string:
-  0962280217708906.
-\newblock PMID: 28589752\href {\doibase 10.1177/0962280217708906} {doi:
-  10.1177/0962280217708906}
+\bibitem{Eddelbuettel2011}
+Eddelbuettel D, Fran\c{c}ois R. {Rcpp}: Seamless {R} and {C++} Integration.
+  {\it Journal of Statistical Software} 2011\string; 40(8)\string: 1--18.
+\newblock \href {\doibase 10.18637/jss.v040.i08} {doi: 10.18637/jss.v040.i08}
 
-\bibitem{Storer1992}
-Storer BE. A Class of Phase II Designs with Three Possible Outcomes. {\it
-  Biometrics} 1992\string; 48(1)\string: 55--60.
-
-\bibitem{Sargent2001}
-Sargent DJ, Chan V, Goldberg RM. A Three-Outcome Design for Phase {II} Clinical
-  Trials. {\it Controlled Clinical Trials} 2001\string; 22(2)\string: 117 -
-  125.
-\newblock \href {\doibase http://dx.doi.org/10.1016/S0197-2456(00)00115-X}
-  {doi: http://dx.doi.org/10.1016/S0197-2456(00)00115-X}
-
-\bibitem{Hong2007}
-Hong S, Wang Y. A three-outcome design for randomized comparative phase {II}
-  clinical trials. {\it Statist. Med.} 2007\string; 26(19)\string: 3525--3534.
-\newblock \href {\doibase 10.1002/sim.2824} {doi: 10.1002/sim.2824}
-
-\bibitem{Friede2006}
-Friede T, Kieser M. Sample Size Recalculation in Internal Pilot Study Designs:
-  A Review. {\it Biom. J.} 2006\string; 48(4)\string: 537--555.
-\newblock \href {\doibase 10.1002/bimj.200510238} {doi: 10.1002/bimj.200510238}
+\bibitem{Edginton2017}
+Edginton E, Walwyn R, Burton K, et al. {TIGA}-{CUB} {\textendash} manualised
+  psychoanalytic child psychotherapy versus treatment as usual for children
+  aged 5{\textendash}11 years with treatment-resistant conduct disorders and
+  their primary carers: study protocol for a randomised controlled feasibility
+  trial. {\it Trials} 2017\string; 18(1).
+\newblock \href {\doibase 10.1186/s13063-017-2166-2} {doi:
+  10.1186/s13063-017-2166-2}
 
 \bibitem{Landau2013}
 Landau S, Stahl D. Sample size and power calculations for medical studies by
@@ -183,5 +168,17 @@ Wilson DT, Walwyn RE, Brown J, Farrin AJ, Brown SR. Statistical challenges in
   25(3)\string: 997--1009.
 \newblock \href {\doibase 10.1177/0962280215589507} {doi:
   10.1177/0962280215589507}
+
+\bibitem{Conaway1996}
+Conaway MR, Petroni GR. Designs for Phase {II} Trials Allowing for a Trade-Off
+  between Response and Toxicity. {\it Biometrics} 1996\string; 52(4)\string:
+  pp. 1375-1386.
+
+\bibitem{Thall2008}
+Thall PF. Some geometric methods for constructing decision criteria based on
+  two-dimensional parameters. {\it Journal of Statistical Planning and
+  Inference} 2008\string; 138(2)\string: 516--527.
+\newblock \href {\doibase 10.1016/j.jspi.2007.06.013} {doi:
+  10.1016/j.jspi.2007.06.013}
 
 \end{thebibliography}
