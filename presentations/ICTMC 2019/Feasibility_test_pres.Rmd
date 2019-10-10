@@ -1,0 +1,380 @@
+---
+title: A hypothesis test of feasibility for external pilot trials assessing recruitment,
+  follow-up and adherence rates
+author: "Duncan T. Wilson, Rebecca E.A. Walwyn, Julia Brown, Amanda J. Farrin"
+date: "Leeds Institute of Clinical Trials Research"
+output:
+  ioslides_presentation:
+    widescreen: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.width=6, fig.height=4, out.width="70%", out.height="70%", echo=F)
+require(ggplot2)
+require(pso)
+require(mco)
+require(RColorBrewer)
+require(rgenoud)
+require(randtoolbox)
+require(gganimate)
+require(Rcpp)
+cols <- brewer.pal(8, "Dark2")
+set.seed(87450)
+```
+
+## Motivation {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+- The success of a large, definitve Complex intervention RCT can depend on things like **recruitment**, **follow-up** and **adherence** rates.
+- When these are unknown, we risk running the trial only to find out it's **infeasible** - a waste of time and money.
+- To avoid this, we often run a small pilot trial to estimate these rates and guide the **stop/go decision**.
+
+For example, proceed only if:
+
+- Recruitment rate > 0.4;
+- Follow-up rate > 0.6;
+- Adherence rate > 0.8.
+
+## Motivation {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+- ..._but_, setting these decision rules is challenging:
+    + If they are **too lax**, we will often proceed to infeasible trials;
+    + If they are **too strict**, we will often discard promising interventions;
+    + If the pilot estimates are **too variable**, we will make mistakes.
+    
+<div class="centered">
+<font size="5">**How can we determine optimial decision rules and pilot sample sizes?**</font>
+</div>
+
+
+## Content {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+We will:
+
+- Use a **hypothesis testing framework**;
+- Define a test **statistic**;
+- Show how **type I and II error rates** can be determined;
+- Use these operating characteristics to **optimise** the decision rule and pilot sample size;
+- Apply the method to an example, and **compare** it with a more typical approach.
+ 
+## Set-up {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+Definitive trial: two-arm parallel group, with a normally distributed primary outcome with known variance.
+
+We are interested in:
+
+- Recruitment rate, $\phi_r$;
+- Follow-up rate, $\phi_f$;
+- Adherence rate, $\phi_a$.
+
+We denote the parameter vector by $\phi = (\phi_r, \phi_f, \phi_a)$, and the pilot estimate by $\hat{\phi} = (\hat{\phi}_r, \hat{\phi}_f, \hat{\phi}_a)$. 
+
+Our problem is to choose an appropriate decision rule,
+$$
+d(\hat{\phi}): [0,1]^3 \rightarrow \{stop, go\}
+$$
+together with a pilot sample size, $n_p$.
+
+## Test {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+Quantify feasibility as the power we will have in the definitive trial, denoted $f(\phi)$.
+
+A test statistic: $f(\hat{\phi})$ - the estimated power, given the pilot estimates $\hat{\phi}$.
+
+Our decision rule requires a cut-off value $c$:
+$$
+d[f(\hat{\phi})] = 
+\begin{cases}
+stop ~\text{ if } f(\hat{\phi}) \leq c, \\
+go ~~~~\text{ if } f(\hat{\phi}) > c.
+\end{cases}
+$$
+
+<!-- ## Operating characteristics {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%} -->
+
+<!-- For example, if we set $c = 0.7$ then  -->
+<!-- $$ -->
+<!-- \hat{\phi}_1 = (\hat{\phi}_r = 0.6, \hat{\phi}_f = 0.8, \hat{\phi}_a = 0.95) \\ -->
+<!-- f(\hat{\phi}_1) = 0.6 < c \Rightarrow stop, -->
+<!-- $$ -->
+<!-- while -->
+<!-- $$ -->
+<!-- \hat{\phi}_1 = (\hat{\phi}_r = 0.6=8, \hat{\phi}_f = 0.9, \hat{\phi}_a = 0.9) \\ -->
+<!-- f(\hat{\phi}_1) = 0.8 > c \Rightarrow go. -->
+<!-- $$ -->
+
+## Operating characteristics {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+Due to the sampling variation in $\hat{\phi}$ we might make mistakes. For example, 
+$$
+f(\phi) = 0.9 - \text{ feasible, want to proceed; } \\
+f(\hat{\phi}) = 0.6 < c \Rightarrow stop, ~ \text{ a type II error.}
+$$
+Similarly, 
+$$
+f(\phi) = 0.5 - \text{ infeasible, want to stop; } \\
+f(\hat{\phi}) = 0.75 > c \Rightarrow go, ~ \text{ a type I error.}
+$$
+
+<!-- Given null and alternative hypotheses, we can define error rates in the usual way: -->
+<!-- $$ -->
+<!-- \alpha = \max_{\phi ~\in~ \text{null}} Pr[\hat{\phi} > c ~|~ \phi] \\ -->
+<!-- \beta = \max_{\phi ~\in~ \text{alternative}} Pr[\hat{\phi} \leq c ~|~ \phi] -->
+<!-- $$ -->
+
+
+
+<!-- ## Hypotheses {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%} -->
+
+<!-- Null hyptohesis: all those points $\phi$ which would lead to a power less than some value $p_0$. -->
+
+<!-- Alternative hypothesis: all $\phi$ which would give a power of at least $p_1$. -->
+
+
+## Hypotheses {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+Suppose $p_0 = 0.6$ and $p_1 = 0.8$.
+
+```{r, eval=T}
+mu <- 0.3
+p0 <- 0.6; p1 <- 0.8
+
+x0 <- (qnorm(p0) + qnorm(0.975))
+x1 <- (qnorm(p1) + qnorm(0.975))
+
+get_exp_N <- function(n_e, n_t, phi_r)
+{
+  # Calculate the expected number recruited into the main trial
+  n_r <- 0:(n_t-1)
+  sum(dbinom(n_r, n_e, phi_r)*n_r) + n_t*(1-pbinom(n_t-1, n_e, phi_r))
+}
+
+get_fup <- function(phi, xi, mu, n_e, n_t)
+{
+  # For some recruitment and adherence rate, find the follow-up rate which will lie on
+  # the boundary of the hypothesis defined by xi
+  p_r <- phi[1]; p_a <- phi[2]; sd <- 1
+  exp_n <- get_exp_N(n_e, n_t, p_r)
+  (4*sd^2 + 2*mu^2 *p_a*(1-p_a))*xi^2/((p_a*mu)^2*exp_n)
+}
+
+# Null
+df <- expand.grid(p_r=seq(0,1,0.01), p_a=seq(0,1,0.01))
+df$p_f <- apply(df, 1, get_fup, xi=x0, mu=mu, n_e = 1000, n_t =514)
+sub_n <- df
+
+# Alternative
+df <- expand.grid(p_r=seq(0,1,0.01), p_a=seq(0,1,0.01))
+df$p_f <- apply(df, 1, get_fup, xi=x1, mu=mu, n_e = 1000, n_t =514)
+sub_a <- df
+
+# Combine for plotting
+sub_n$h <- "Null"
+sub_a$h <- "Alternative"
+sub_n$p_f <- sapply(sub_n$p_f, min, 1)
+sub <- rbind(sub_n, sub_a)
+# Discard any infeasible points
+#sub <- sub[sub$p_f <= 1,]
+#sub <- sub[sub$p_f <= 0.95 & sub$p_a >= 0.85,]
+
+to_add <- data.frame(p_a = unique(sub$p_a), p_r=min(sub[sub$h=="Null",]$p_r), p_f=1, h="Null")
+sub <- rbind(sub, to_add)
+
+sub$labs <- sapply(sub$p_a, function(x) paste0("Adherence~rate~phi[a]==", x))
+```
+
+<div class="centered">
+```{r}
+ggplot(sub[sub$p_a == 0.85,], aes(group=h, fill=h)) + geom_line(aes(p_r, p_f)) +
+  scale_y_continuous(limits=c(0,1)) +
+  geom_ribbon(aes(x=p_r, ymin=p_f, ymax=1), data=sub[sub$h=="Alternative" & sub$p_a == 0.85,], alpha=0.5) + 
+  geom_ribbon(aes(x=p_r, ymin=0, ymax=p_f), data=sub[sub$h=="Null" & sub$p_a == 0.85,], alpha=0.5) + 
+  geom_text(aes(x=0.5, y=0.2, label=labs), parse = TRUE, size=3) +
+  theme_minimal() +
+  xlab(expression(paste("Recruitment rate, ", phi[r]))) + 
+  ylab(expression(paste("Follow-up rate, ", phi[f]))) + 
+  scale_fill_manual(values=cols, name = "Hypothesis")
+  #transition_states(p_a, state_length = 0)
+
+#animate(p, rewind=T)
+```
+</div>
+
+## Hypotheses {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+Suppose $p_0 = 0.6$ and $p_1 = 0.8$.
+
+<div class="centered">
+```{r, eval=T}
+ggplot(sub[sub$p_a == 0.97,], aes(group=h, fill=h)) + geom_line(aes(p_r, p_f)) +
+  scale_y_continuous(limits=c(0,1)) +
+  geom_ribbon(aes(x=p_r, ymin=p_f, ymax=1), data=sub[sub$h=="Alternative" & sub$p_a == 0.97,], alpha=0.5) + 
+  geom_ribbon(aes(x=p_r, ymin=0, ymax=p_f), data=sub[sub$h=="Null" & sub$p_a == 0.97,], alpha=0.5) + 
+  geom_text(aes(x=0.5, y=0.2, label=labs), parse = TRUE, size=3) +
+  theme_minimal() +
+  xlab(expression(paste("Recruitment rate, ", phi[r]))) + 
+  ylab(expression(paste("Follow-up rate, ", phi[f]))) + 
+  scale_fill_manual(values=cols, name = "Hypothesis")
+```
+</div>
+
+
+## Progression criteria {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+Having defined hypotheses, we can calculate error rates for any kind of decision rule.
+
+<!-- In particular, consider typical independent progression criteria of the form -->
+<!-- $$ -->
+<!-- d(\hat{\phi}) =  -->
+<!-- \begin{cases} -->
+<!-- stop ~\text{ if } \hat{\phi}_r \leq c_r, ~\text{ or }~ \hat{\phi}_f \leq c_f, ~\text{ or }~ \hat{\phi}_a \leq c_a \\ -->
+<!-- go ~~~~\text{ if } \hat{\phi}_r > c_r ~\text{ and }~ \hat{\phi}_f > c_f ~\text{ and }~ \hat{\phi}_a > c_a -->
+<!-- \end{cases} -->
+<!-- $$ -->
+
+For example, **proceed** to the definitive trial **only if**:
+
+- Recruitment rate $\hat{\phi}_r > c_r = 0.4$, and
+- follow-up rate $\hat{\phi}_f > c_f = 0.6$, and
+- adherence rate $\hat{\phi}_a > c_a = 0.8$.
+
+In this case, we now want to choose $n_p$ and the three progression criteria thresholds, $c_r, c_f$ and $c_a$, based on the error rates they lead to.
+
+## Application {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+Planned definitive trial:
+
+- Minimal clinically important difference = 0.3
+- Known standard deviation of primary outcome = 1
+- Target sample size $n = 514$ participants per arm
+- 90\% power using a two-sided type I error rate of 0.05, assuming 10\% attrition
+
+Our pilot trial hypotheses:
+
+- a true power of more than $80\% \Rightarrow$ feasible, and we don't want to miss this - so, $p_1 = 0.8$;
+- a true power of less than $60\% \Rightarrow$ infeasible, and should be avoided - so, $p_0 = 0.6$.
+
+## Results {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+```{r}
+df <- readRDS("../..//data/eval.Rda")
+sub <- df[df$null_pow == "p[0] == 0.65" & df$n_t == "n[t] == 514",]
+sub$p <- sapply(sub$c_1, function(x) pnorm(x - qnorm(0.975)))
+```
+
+<div class="centered">
+```{r, warning=FALSE, eval=T}
+sub2 <- sub[sub$t == "FT",][c(10,20),]
+sub3 <- sub[sub$t == "PC",][c(33),]
+sub3[1,1:2] <- c(0.74, 0.88)
+
+p <- ggplot(sub2, aes(, colour=as.factor(np), linetype=t, shape=t)) + 
+  #geom_point(aes(a, b)) +
+  theme_minimal() + coord_fixed() +
+  xlab(expression(paste("Type I error rate, ", alpha))) + 
+  ylab(expression(paste("Type II error rate, ", beta))) +
+  scale_color_manual(name=expression(n[p]), values=cols) +
+  scale_linetype(name="Method", labels=c("Feasibility test", "Independent PCs")) +
+  scale_shape(name="Method", labels=c("Feasibility test", "Independent PCs")) +
+  scale_x_continuous(breaks=c(0, 0.2, 0.4, 0.6, 0.8, 1), limits = c(0,1)) + 
+  scale_y_continuous(breaks=c(0, 0.2, 0.4, 0.6, 0.8, 1), limits=c(0,1))
+
+p
+```
+</div>
+
+## Results {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+<div class="centered">
+```{r, warning=FALSE, eval=T}
+p <- p + geom_point(aes(a, b))
+p + annotate("text", label = paste("c = ", round(sub2$p, 2)), x = sub2$a + 0.15, y = sub2$b + 0.05, size = 4)
+```
+</div>
+
+## Results {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+<div class="centered">
+```{r, warning=FALSE, eval=T}
+p <- p +  geom_step(data=sub[sub$t == "FT" & sub$np == 30,], aes(a, b))
+p
+```
+</div>
+  
+## Results {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+<div class="centered">
+```{r, warning=FALSE, eval=T}
+p <- p + geom_point(data=sub3, aes(a, b))
+
+p + #annotate("text", label = expression(paste(c[r], " = ", 0.37)), x = sub3$a[1] + 0.14, y = sub3$b[1] + 0.05, size = 4) +
+  #annotate("text", label = expression(paste(c[f], " = ", 0.71)), x = sub3$a[1] + 0.14, y = sub3$b[1] - 0.01, size = 4) +
+  #annotate("text", label = expression(paste(c[a], " = ", 0.86)), x = sub3$a[1] + 0.14, y = sub3$b[1] - 0.07, size = 4) +
+  annotate("text", label = expression(paste(c[r], " = ", 0.4)), x = sub3$a[1] + 0.14, y = sub3$b[1] + 0.09, size = 4) +
+  annotate("text", label = expression(paste(c[f], " = ", 0.6)), x = sub3$a[1] + 0.14, y = sub3$b[1] + 0.03, size = 4) +
+  annotate("text", label = expression(paste(c[a], " = ", 0.8)), x = sub3$a[1] + 0.14, y = sub3$b[1] - 0.03, size = 4)
+```
+</div>
+  
+## Results {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+<div class="centered">
+```{r, warning=FALSE, eval=T}
+p + geom_point(data=data.frame(a=0.5, b=0.5, np=30, t="PC"), aes(a, b), colour="black", shape=16, size=2)
+```
+</div>
+  
+## Results {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+<div class="centered">
+```{r, warning=FALSE, eval=T}
+p <- p + geom_step(data=sub[sub$t == "PC" & sub$np == 30,], aes(a, b))
+p
+```
+</div>
+  
+## Results {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+<div class="centered">
+```{r, warning=FALSE, eval=T}
+p + geom_step(data=sub[sub$t == "FT" & sub$np == 50,], aes(a, b)) 
+```
+</div>
+
+## Conclusions {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%}
+
+Key points:
+
+- The proposed test can provide conventional error rates with a pilot sample size of between 30 and 50 participants per arm;
+- More conventional progression criteria, based on several independent thresholds, can have very poor error rates.
+
+Extensions:
+
+- We have assumed known variance, but this can be relaxed (see pre-print);
+- If only a subset of the parameters considered here are of interest, the method reduces down easily.
+
+----
+
+<div class="centered">
+<font size="30">Thank you</font>
+</div>
+
+- Pre-print on arXiv
+- Paper, slides and all code are at https://github.com/DTWilson/Feasibility_test
+- Contact: @DTWilson, d.t.wilson@leeds.ac.uk
+- Plug - poster P5
+
+----
+
+
+```{r, out.width = "900px"}
+knitr::include_graphics("OPIS-CRTs_slide.png")
+```
+
+`r knitr::knit_exit()`
+
+<!-- ## Practical considerations {data-background=CTRU-corner-&-logo.png data-background-position="left bottom" data-background-size=20%} -->
+
+<!-- - RAG system -->
+<!-- - How progression decisions are made currently -->
+<!-- - Sequential monitoring - implications for multiplicity, and for changes to the intervention (ongoing learning) -->
+<!-- - SWATs - testing out several strategies, so different parameters being estimated -->

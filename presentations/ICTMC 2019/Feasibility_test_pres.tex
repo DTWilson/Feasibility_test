@@ -1,0 +1,372 @@
+\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  ignorenonframetext,
+]{beamer}
+\usepackage{pgfpages}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamercolor{caption name}{fg=normal text.fg}
+\beamertemplatenavigationsymbolsempty
+% Prevent slide breaks in the middle of a paragraph:
+\widowpenalties 1 10000
+\raggedbottom
+\setbeamertemplate{part page}{
+  \centering
+  \begin{beamercolorbox}[sep=16pt,center]{part title}
+    \usebeamerfont{part title}\insertpart\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{section page}{
+  \centering
+  \begin{beamercolorbox}[sep=12pt,center]{part title}
+    \usebeamerfont{section title}\insertsection\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{subsection page}{
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center]{part title}
+    \usebeamerfont{subsection title}\insertsubsection\par
+  \end{beamercolorbox}
+}
+\AtBeginPart{
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \ifbibliography
+  \else
+    \frame{\sectionpage}
+  \fi
+}
+\AtBeginSubsection{
+  \frame{\subsectionpage}
+}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provides euro and other symbols
+\else % if luatex or xelatex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={A hypothesis test of feasibility for external pilot trials assessing recruitment, follow-up and adherence rates},
+  pdfauthor={Duncan T. Wilson, Rebecca E.A. Walwyn, Julia Borwn, Amanda J. Farrin},
+  pdfborder={0 0 0},
+  breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\newif\ifbibliography
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-2}
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+\title{A hypothesis test of feasibility for external pilot trials assessing
+recruitment, follow-up and adherence rates}
+\author{Duncan T. Wilson, Rebecca E.A. Walwyn, Julia Borwn, Amanda J. Farrin}
+\date{Leeds Institute of Clinical Trials Research}
+
+\begin{document}
+\frame{\titlepage}
+
+\hypertarget{set}{%
+\section{Set}\label{set}}
+
+\begin{frame}{Motivation}
+\protect\hypertarget{motivation}{}
+
+\begin{itemize}
+\tightlist
+\item
+  The success of a larege, definitve COmplex intervention RCT can depend
+  on things like recruitment, follow-up and adherence rates.
+\item
+  When these are unknown, we risk running the trial only to find out
+  it's infeasible - a waste of time and money.
+\item
+  To avoid this, we often run a small pilot trial to estimate these
+  rates and guide the stop/go decision - so-called progression criteria,
+  a pre-soecified decision rule.
+\item
+  But, these pilot estimates are variable, and choosing a specific
+  decision rule and pilot sample size is difficult. How do we ensure
+  they are not to lax, or too strict? How do we decide how precise the
+  estimates should be? A complex statistical problem.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Content}
+\protect\hypertarget{content}{}
+
+We will:
+
+\begin{itemize}
+\tightlist
+\item
+  Introduce a formal method for making stop / go decisions based on
+  recruitment, follow-up and adherence rates;
+\item
+  Use a hypothesis testing framework to define a test statistic;
+\item
+  Inform the choice of decision rule and sample size using the usual
+  operating characteristics of type I and II error rates.
+\item
+  Apply this method to an example, and contrast it with an alternative
+  approach.
+\end{itemize}
+
+\end{frame}
+
+\hypertarget{body}{%
+\section{Body}\label{body}}
+
+\begin{frame}{Set-up}
+\protect\hypertarget{set-up}{}
+
+The deifnitive trial will compare the intervention with control in a
+two-arm parralell group set-up, with a normally distributed primary
+outcome with known variance.
+
+We are iterested in:
+
+\begin{itemize}
+\tightlist
+\item
+  Recruitment rate, \(\phi_r\);
+\item
+  Follow-up rate, \(\phi_f\);
+\item
+  Adherence rate, \(\phi_a\).
+\end{itemize}
+
+We denote the parameter vector by \(\phi = (\phi_r, \phi_f, \phi_a)\),
+and the pilot estimate by
+\(\hat{\phi} = (\hat{\phi}_r, \hat{\phi}_f, \hat{\phi}_a)\).
+
+Our problem is to choose an approriate decision rule, \[
+d(\hat{\phi}): [0,1]^3 \rightarrow \{stop, go\}
+\] together with a pilot sample size, \(n_p\).
+
+\end{frame}
+
+\begin{frame}{Test}
+\protect\hypertarget{test}{}
+
+We base progression decisions on a test statistic: the estimated power
+of the main trial, denoted \(f(\hat{\phi})\).
+
+Our decision rule requires a cut-off value \(c\): \[
+d[f(\hat{\phi})] = 
+\begin{cases}
+stop ~\text{ if } f(\hat{\phi}) \leq c, \\
+go ~~~~\text{ if } f(\hat{\phi}) > c.
+\end{cases}
+\]
+
+For example, if we set \(c = 0.7\) then \[
+\hat{\phi}_1 = (\hat{\phi}_r = 0.6, \hat{\phi}_f = 0.8, \hat{\phi}_a = 0.95) \\
+f(\hat{\phi}_1) = 0.6 < c \Rightarrow stop,
+\] while \[
+\hat{\phi}_1 = (\hat{\phi}_r = 0.6=8, \hat{\phi}_f = 0.9, \hat{\phi}_a = 0.9) \\
+f(\hat{\phi}_1) = 0.8 > c \Rightarrow go.
+\]
+
+\end{frame}
+
+\begin{frame}{Operating characteristics}
+\protect\hypertarget{operating-characteristics}{}
+
+Due to the sampling variation in \(\hat{\phi}\) we might make mistakes.
+For example, \[
+f(\phi) = 0.9 - \text{ feasible, want to proceed;} (\phi \in \Phi_1) \\
+f(\hat{\phi}) = 0.6 < c \Rightarrow stop, ~ \text{ a type II error.}
+\] Similarly, \[
+f(\phi) = 0.5 - \text{ infeasible, want to stop;} (\phi \in \Phi_0) \\
+f(\hat{\phi}) = 0.75 > c \Rightarrow go, ~ \text{ a type I error.}
+\]
+
+Given null and alternative hypotheses, we can define error rates in the
+usual way: \[
+\alpha = \max_{\phi \in \Phi_0} Pr[\hat{\phi} > c ~|~ \phi] \\
+\beta = \max_{\phi \in \Phi_1} Pr[\hat{\phi} \leq c ~|~ \phi]
+\]
+
+\end{frame}
+
+\begin{frame}{Hypotheses}
+\protect\hypertarget{hypotheses}{}
+
+We define out null hypothesis as all those points \(\phi\) which would
+lead to a power no more than some value \(p_0\).
+
+Similarly, the alternative hypothesis contains all \(\phi\) which would
+give a power of at least \(p_1\).
+
+\[ 
+\Phi_0 = \{\phi ~|~ f(\phi) \leq p_0 \} \\
+\Phi_1 = \{\phi ~|~ f(\phi) \leq p_1 \}
+\]
+
+For example, suppose \(p_0 = 0.6\) and \(p_1 = 0.8\). We can plot the
+hypotheses:
+
+\end{frame}
+
+\begin{frame}{Comparator}
+\protect\hypertarget{comparator}{}
+
+Having defined hypotheses, we can calculate error rates for any decision
+rule.
+
+In particular, consider typical independant progression criteria of the
+form \[
+d(\hat{\phi}) = 
+\begin{cases}
+stop ~\text{ if } \hat{\phi}_r \leq c_r, ~\text{ or }~ \hat{\phi}_f \leq c_f, ~\text{ or }~ \hat{\phi}_a \leq c_a \\
+go ~~~~\text{ if } \hat{\phi}_r > c_r ~\text{ and }~ \hat{\phi}_f > c_f ~\text{ and }~ \hat{\phi}_a > c_a
+\end{cases}
+\]
+
+In this case, we now want to choose \(n_p\) and the three progression
+criteria thresholds, \(c_r, c_f\) and \(c_a\), based on the error rates
+they lead to.
+
+\end{frame}
+
+\begin{frame}{Application}
+\protect\hypertarget{application}{}
+
+Conisder a definitive trial with a planned sample size of \(n = 514\)
+per arm, which will give 90\% power to detect a (small) standardies
+effect size of 0.3, assuming a two-sided type I error rate of 0.05 and
+allowing for a 10\% rate of loss to follow-up.
+
+We define our hypotheses by saying that a true power less than
+\(p_0 = 0.6\) would be infeasible, and should be avoided; while a true
+power of \(p_1 = 0.8\) would be feasible and should not be missed.
+
+\end{frame}
+
+\begin{frame}{Results}
+\protect\hypertarget{results}{}
+
+\end{frame}
+
+\begin{frame}{Conclusions}
+\protect\hypertarget{conclusions}{}
+
+We have described one formal approach to making stop go decisions after
+a pilot, based on estimates of recruitment, follow-up and adherence.
+
+We have shown that, for the way we have defined hypotheses, this test
+gives OCs much better than more conventional PCs.
+
+We have assumed known variance, but this can be relaxed; and if only a
+sibset of thse parameters are of interest, we can easily reduce the
+method down.
+
+\end{frame}
+
+\begin{frame}
+
+Thank you
+
+\begin{itemize}
+\tightlist
+\item
+  Pre-print available on arXiv
+\item
+  Paper, slides and all code are at
+  \url{https://github.com/DTWilson/Feasibility_test}
+\item
+  Contact: @DTWilson,
+  \href{mailto:d.t.wilson@leeds.ac.uk}{\nolinkurl{d.t.wilson@leeds.ac.uk}}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{External pilot trials}
+\protect\hypertarget{external-pilot-trials}{}
+
+\(\{\text{Pilot trials}\} \subset \{\text{Feasibility studies}\}\)
+(Eldridge et al., 2016)
+
+A small version of the planned main study.
+
+Asking the questions: \emph{should} we do the main trial, and if so,
+\emph{how}?
+
+Common quantitative objectives: estimating recruitment rates, follow-up
+rates, and adherence rates (Avery et al., 2017).
+
+\end{frame}
+
+\begin{frame}{Example - REACH}
+\protect\hypertarget{example---reach}{}
+
+REACH (Research Exploring Physical Activity in Care Homes): a pilot for
+a complex intervention designed to increase the physical activity of
+care home residents.
+
+Feasibility outcomes:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Recruitment} (measured in terms of the average number of
+  residents in each care home who participate in the trial);
+\item
+  \textbf{Adherence} (a binary indicator at the care home level
+  indicating if the intervention was fully implemented);
+\item
+  \textbf{Follow-up} (a binary indicator for each resident of successful
+  follow-up at the planned primary outcome time of 12 months);
+\item
+  \textbf{Efficacy} (a continuous measure of physical activity at the
+  resident level).
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Example - REACH}
+\protect\hypertarget{example---reach-1}{}
+
+Cluster randomised, with 6 care homes per arm.
+
+Progressing to the definitive trial if the \emph{progression criteria}
+are satisfied:
+
+\end{frame}
+
+\end{document}
