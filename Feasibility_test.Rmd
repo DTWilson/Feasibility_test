@@ -50,7 +50,7 @@ get_fup <- function(phi, xi, mu, n_e, n_t)
 {
   # For some recruitment and adherence rate, find the follow-up rate which will lie on
   # the boundary of the hypothesis defined by xi
-  p_r <- phi[1]; p_a <- phi[2]; sd <- 1
+  p_r <- phi[1]; p_a <- phi[2]; sd <- 0.5
   exp_n <- get_exp_N(n_e, n_t, p_r)
   (4*sd^2 + 2*mu^2 *p_a*(1-p_a))*xi^2/((p_a*mu)^2*exp_n)
 
@@ -290,7 +290,23 @@ ggplot(df, aes(p0, a, colour=as.factor(n_p))) + geom_line() + #geom_smooth(span=
 
 ### Comparator
 
-We can comapre the error rate curve of the proposed method against that of the current approach, where the three parameter estimates are compared against seperate progression criteria thresholds and a "go" decision is made only if they are all exceeded. The optimisation strategy is based on a simple grid search at the inner (over the hypotheses) level. 
+We can comapre the error rate curve of the proposed method against that of the current approach, where the three parameter estimates are compared against seperate progression criteria thresholds and a "go" decision is made only if they are all exceeded. The optimisation strategy is based on a simple grid search at the inner (over the hypotheses) level.
+
+Note that $x(\phi)$ is strictly increasing in both $\phi_f$ and $\phi_r$. To show that it is also strictly increasing in $\phi_a$, note that
+$$
+\frac{d}{d\phi_a} x(\phi) = \frac{c(2a + b\phi_a)}{2(a + b\phi_a(1-\phi_a))^{3/2}},
+$$
+where $a = 4\sigma^2, b = 2\mu^2$ and $c = \mu \sqrt{ \phi_f E[N | \phi_r]}$. Then 
+$$
+\frac{d}{d\phi_a} x(\phi) = 0 \Rightarrow \phi_a = -\frac{2a}{b}
+$$
+(since $c \neq 0$), and since $a > 0$ and $b > 0$ we can conclude $x(\phi)$ is strictly monotonic over $\phi_a \in [0, 1]$. The, since the partial derivative is equal to 
+$$
+\frac{2ca}{2a^{3/2}} > 0
+$$
+at $\phi_a = 0$, we can conclude $x(\phi)$ is strictly increasing in $\phi_a$.
+
+Since the function $f(n_p, \mathbf{c}, \phi)$ is also strictly increasing in $\phi$, $f$ will therefore be maximised when $x(\phi) = x_0$ (that is, when $\phi$ is on the boundary of the null hypothesis). A similar argument for the alternative hypothesis follows.
 
 ```{r}
 get_pf <- function(phi, xi, mu, n_e, n_t)
@@ -439,7 +455,7 @@ ggplot(df, aes(a, b, colour=as.factor(np), linetype=t)) + geom_step() +
   theme_minimal() + coord_fixed() +
   xlab(expression(alpha)) + ylab(expression(beta)) +
   scale_color_manual(name=expression(n[p]), values=cols) +
-  scale_linetype(name="Method", labels=c("Feasibility test", "Standard practice")) +
+  scale_linetype(name="Method", labels=c("Feasibility test", "Independent PCs")) +
   theme(panel.spacing = unit(2, "lines"), legend.position="bottom") +
   scale_x_continuous(breaks=c(0, 0.25, 0.5, 0.75, 1)) 
 
@@ -460,7 +476,7 @@ ggplot(sub, aes(a,b,colour=as.factor(np), linetype=t)) + geom_step() + #geom_poi
   theme_minimal() + coord_fixed() +
   xlab(expression(alpha)) + ylab(expression(beta)) +
   scale_color_manual(name=expression(n[p]), values=cols) +
-  scale_linetype(name="Method", labels=c("Feasibility test", "Standard practice")) +
+  scale_linetype(name="Method", labels=c("Feasibility test", "Independent PCs")) +
   scale_x_continuous(breaks=c(0, 0.2, 0.4, 0.6, 0.8, 1)) + 
   scale_y_continuous(breaks=c(0, 0.2, 0.4, 0.6, 0.8, 1)) 
 
